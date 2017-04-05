@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////
+ï»¿////////////////////////////////////////////////////////////////////////////
 // The source of this code is from the Keccak(SHA-3) code,
 // released in Keccak homepage(http://keccak.noekeon.org)
 ////////////////////////////////////////////////////////////////////////////
@@ -9,10 +9,10 @@
 
 typedef unsigned int uint_32t;
 
-// Æò±ÕÄ¡ ÃøÁ¤ À§ÇÑ ¹İº¹
+// í‰ê· ì¹˜ ì¸¡ì • ìœ„í•œ ë°˜ë³µ
 #define AVERAGE_COUNT		(1000)
 
-// ¹İº¹ ¼öÇà ÇßÀ» ¶§ ÃÖ¼Ò ½Ã°£ ÃøÁ¤
+// ë°˜ë³µ ìˆ˜í–‰ í–ˆì„ ë•Œ ìµœì†Œ ì‹œê°„ ì¸¡ì •
 #define ITERATION_COUNT		(100) 
 
 uint_32t HiResTime(void);           /* return the current value of time stamp counter */

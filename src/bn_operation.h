@@ -1,4 +1,4 @@
-#ifndef _BN_OPERATION_H_
+﻿#ifndef _BN_OPERATION_H_
 #define _BN_OPERATION_H_
 
 #include "bignum.h"

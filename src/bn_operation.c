@@ -1,13 +1,13 @@
-/**
+ï»¿/**
  * @file bn_operation.c
- * @brief BIGNUM ÀÌ¿ëÇÑ ¿¬»ê
+ * @brief BIGNUM ì´ìš©í•œ ì—°ì‚°
  * @details 
  * - Addition
  * - Subtraction
  * - Multiplication
  * - Modular
  * - inversion
- * ÀÚ¼¼ÇÑ ¼³¸í
+ * ìì„¸í•œ ì„¤ëª…
  * @date 2017. 03 ~ 07.
  * @author YoungJin CHO
  * @version 1.00
@@ -21,10 +21,10 @@
 /**
  * @brief Absolute Add BIGNUM *A and BIGNUM *B
  * @details
- * - BIGNUM *A ¿Í BIGNUM *B ¸¦ ´õÇØ¼­ BIGNUM *R Ãâ·Â
- * - BN_Abs_Add() ÇÔ¼ö Á¶°Ç(Length) : A >= B  
- * - Sign ±¸ºĞ ¾øÀÌ WORD µ¡¼À -> R = |A| + |B|
- * - *R ÀÇ ÃÖ´ë Å©±â : A.Length + 1
+ * - BIGNUM *A ì™€ BIGNUM *B ë¥¼ ë”í•´ì„œ BIGNUM *R ì¶œë ¥
+ * - BN_Abs_Add() í•¨ìˆ˜ ì¡°ê±´(Length) : A >= B  
+ * - Sign êµ¬ë¶„ ì—†ì´ WORD ë§ì…ˆ -> R = |A| + |B|
+ * - *R ì˜ ìµœëŒ€ í¬ê¸° : A.Length + 1
  * @param[out] BIGNUM *R
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
@@ -33,23 +33,23 @@
 void BN_Abs_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {	
 	UNWORD i;
-	UNWORD carry = 0;		// ÃÊ±â Carry = 0
+	UNWORD carry = 0;		// ì´ˆê¸° Carry = 0
 	UNWORD tmp1, tmp2;
 	
-	//// R Å©±â°¡ |A| + |B| °á°úº¸´Ù ÀÛÀ¸¸é ÀçÇÒ´ç 
+	//// R í¬ê¸°ê°€ |A| + |B| ê²°ê³¼ë³´ë‹¤ ì‘ìœ¼ë©´ ì¬í• ë‹¹ 
 	//if(R->Length < (A->Length + 1))
 	//	BN_Realloc_Mem(R, (A->Length + 1));	
 
 	for(i = 0 ; i < B->Length ; i++) 
 	{
 		tmp1 = (A->Num[i] + carry) & WORD_MASK;
-		carry = (tmp1 < carry); // A + c < c ÀÎ °æ¿ì carry ¹ß»ı 
+		carry = (tmp1 < carry); // A + c < c ì¸ ê²½ìš° carry ë°œìƒ 
 		tmp2 = (tmp1 + B->Num[i]) & WORD_MASK;
-		carry += (tmp2 < tmp1); // A + B + c < A + c ÀÎ °æ¿ì carry ¹ß»ı
+		carry += (tmp2 < tmp1); // A + B + c < A + c ì¸ ê²½ìš° carry ë°œìƒ
 		R->Num[i] = tmp2;					
 	}
 
-	// A > B ÀÎ °æ¿ì ³ª¸ÓÁö A ºÎºĞ ¿¬»ê
+	// A > B ì¸ ê²½ìš° ë‚˜ë¨¸ì§€ A ë¶€ë¶„ ì—°ì‚°
 	if(carry)
 	{
 		for( ; i < A->Length ; i++)
@@ -65,22 +65,22 @@ void BN_Abs_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 			R->Length = A->Length + 1;
 		}
 	}
-	else // carry = 0 ÀÌ¸é ³ª¸ÓÁö ºÎºĞ ±×³É µ¡¼À
+	else // carry = 0 ì´ë©´ ë‚˜ë¨¸ì§€ ë¶€ë¶„ ê·¸ëƒ¥ ë§ì…ˆ
 		for( ; i < A->Length ; i++)
 			R->Num[i] = A->Num[i];
 	
 	R->Sign = PLUS;
-	//// BIGNUM ÃÖÀûÈ­
+	//// BIGNUM ìµœì í™”
 	//BN_Optimize_Out(R);	
 }
 
 /**
  * @brief Absolute Subtract BIGNUM *B from BIGNUM *A
  * @details
- * - BIGNUM *A ¿¡¼­ BIGNUM *B ¸¦ »©¼­ BIGNUM *R Ãâ·Â
- * - BN_Abs_Sub() ÇÔ¼ö Á¶°Ç(Length) : A > B  
- * - Sign ±¸ºĞ ¾øÀÌ WORD µ¡¼À -> R = |A| - |B|
- * - *R ÀÇ ÃÖ´ë Å©±â : A.Length
+ * - BIGNUM *A ì—ì„œ BIGNUM *B ë¥¼ ë¹¼ì„œ BIGNUM *R ì¶œë ¥
+ * - BN_Abs_Sub() í•¨ìˆ˜ ì¡°ê±´(Length) : A > B  
+ * - Sign êµ¬ë¶„ ì—†ì´ WORD ë§ì…ˆ -> R = |A| - |B|
+ * - *R ì˜ ìµœëŒ€ í¬ê¸° : A.Length
  * @param[out] BIGNUM *R
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
@@ -89,48 +89,48 @@ void BN_Abs_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 void BN_Abs_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {	
 	UNWORD i;
-	UNWORD borrow = 0;	// ÃÊ±â borrow = 0
+	UNWORD borrow = 0;	// ì´ˆê¸° borrow = 0
 	UNWORD tmp1, tmp2;	
 	
-	//// R Å©±â°¡ |A| - |B| °á°úº¸´Ù ÀÛÀ¸¸é ÀçÇÒ´ç
+	//// R í¬ê¸°ê°€ |A| - |B| ê²°ê³¼ë³´ë‹¤ ì‘ìœ¼ë©´ ì¬í• ë‹¹
 	//if(R->Length < A->Length)
 	//	BN_Realloc_Mem(R, (A->Length));	
 
 	for(i = 0 ; i < B->Length ; i++) 
 	{
 		tmp1 = (A->Num[i] - borrow) & WORD_MASK;
-		borrow = (tmp1 > A->Num[i]); // A - b > A ÀÎ °æ¿ì borrow ¹ß»ı
+		borrow = (tmp1 > A->Num[i]); // A - b > A ì¸ ê²½ìš° borrow ë°œìƒ
 		tmp2 = (tmp1 - B->Num[i]) & WORD_MASK;
-		borrow += (tmp1 < B->Num[i]); // A - b < B ÀÎ °æ¿ì borrow ¹ß»ı
+		borrow += (tmp1 < B->Num[i]); // A - b < B ì¸ ê²½ìš° borrow ë°œìƒ
 		R->Num[i] = tmp2;					
 	}
-	// A > B ÀÎ °æ¿ì ³ª¸ÓÁö A ºÎºĞ ¿¬»ê
+	// A > B ì¸ ê²½ìš° ë‚˜ë¨¸ì§€ A ë¶€ë¶„ ì—°ì‚°
 	if(borrow)
 	{
 		for( ; i < A->Length ; i++)
 		{
 			tmp1 = (A->Num[i] - borrow) & WORD_MASK;
-			if(A->Num[i] > 0) // A->Num[i] > 0 ÀÌ¸é ÀÌÈÄ borrow ¹ß»ı X
+			if(A->Num[i] > 0) // A->Num[i] > 0 ì´ë©´ ì´í›„ borrow ë°œìƒ X
 				borrow = 0;
 			
 			R->Num[i] = tmp1;	
 		}
 	}
-	else // borrow = 0 ÀÌ¸é ³ª¸ÓÁö ºÎºĞ ±×³É 
+	else // borrow = 0 ì´ë©´ ë‚˜ë¨¸ì§€ ë¶€ë¶„ ê·¸ëƒ¥ 
 		for( ; i < A->Length ; i++)
 			R->Num[i] = A->Num[i];	
 
 	R->Sign = PLUS;
-	// BIGNUM ÃÖÀûÈ­
+	// BIGNUM ìµœì í™”
 	BN_Optimize_Out(R);	
 }
 
 /**
  * @brief Add BIGNUM *A and BIGNUM *B
  * @details
- * - BIGNUM *A ¿Í BIGNUM *B ¸¦ ´õÇØ¼­ BIGNUM *R Ãâ·Â
- * - ºÎÈ£ ±¸ºĞ °¡´É
- * - WORD µ¡¼À -> R = A + B
+ * - BIGNUM *A ì™€ BIGNUM *B ë¥¼ ë”í•´ì„œ BIGNUM *R ì¶œë ¥
+ * - ë¶€í˜¸ êµ¬ë¶„ ê°€ëŠ¥
+ * - WORD ë§ì…ˆ -> R = A + B
  * @param[out] BIGNUM *R
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
@@ -138,37 +138,37 @@ void BN_Abs_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
  */
 void BN_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {		
-	// A or B °¡ 0 ÀÎ °æ¿ì ´Ü¼ø ¹è¿­ º¹»ç
+	// A or B ê°€ 0 ì¸ ê²½ìš° ë‹¨ìˆœ ë°°ì—´ ë³µì‚¬
 	if(A->Length == 0)
 		BN_Copy(R, B);
 	else if(B->Length == 0)
 		BN_Copy(R, A);
-	else // A, B ¸ğµÎ 0 ÀÌ ¾Æ´Ñ °æ¿ì
+	else // A, B ëª¨ë‘ 0 ì´ ì•„ë‹Œ ê²½ìš°
 	{
 		if(A->Sign == B->Sign) 
 		{
 			//  a +  b =  (a + b)
 			// -a + -b = -(a + b)
-			R->Sign = A->Sign; // °á°ú °ª R ºÎÈ£´Â A, B ºÎÈ£¿Í µ¿ÀÏ
+			R->Sign = A->Sign; // ê²°ê³¼ ê°’ R ë¶€í˜¸ëŠ” A, B ë¶€í˜¸ì™€ ë™ì¼
 
 			if(A->Length >= B->Length)
 				BN_Abs_Add(R, A, B);
 			else // (A->Length < B->Length)
 				BN_Abs_Add(R, B, A);
 		}
-		else // A->Sign != B->Sign ÀÎ °æ¿ì
+		else // A->Sign != B->Sign ì¸ ê²½ìš°
 		{
-			if(BN_Abs_Cmp(A, B) == LARGE) // A > B ÀÎ °æ¿ì
+			if(BN_Abs_Cmp(A, B) == LARGE) // A > B ì¸ ê²½ìš°
 			{
 				//  a + -b =  (a - b)
 				BN_Abs_Sub(R, A, B);
-				R->Sign = A->Sign; // °á°ú°¡ ´õ Å« ¼ö ºÎÈ£ µû¶ó°¨
+				R->Sign = A->Sign; // ê²°ê³¼ê°€ ë” í° ìˆ˜ ë¶€í˜¸ ë”°ë¼ê°
 			}
-			else // // A <= B ÀÎ °æ¿ì 
+			else // // A <= B ì¸ ê²½ìš° 
 			{
 				// -a +  b =  (b - a)
 				BN_Abs_Sub(R, B, A);
-				R->Sign = B->Sign; // °á°ú°¡ ´õ Å« ¼ö ºÎÈ£ µû¶ó°¨
+				R->Sign = B->Sign; // ê²°ê³¼ê°€ ë” í° ìˆ˜ ë¶€í˜¸ ë”°ë¼ê°
 			}
 		}		
 	}
@@ -177,9 +177,9 @@ void BN_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 /**
  * @brief Subtract BIGNUM *B from BIGNUM *A
  * @details
- * - BIGNUM *A ¿¡¼­ BIGNUM *B ¸¦ »©¼­ BIGNUM *R Ãâ·Â
- * - ºÎÈ£ ±¸ºĞ °¡´É
- * - WORD »¬¼À -> R = A - B
+ * - BIGNUM *A ì—ì„œ BIGNUM *B ë¥¼ ë¹¼ì„œ BIGNUM *R ì¶œë ¥
+ * - ë¶€í˜¸ êµ¬ë¶„ ê°€ëŠ¥
+ * - WORD ëº„ì…ˆ -> R = A - B
  * @param[out] BIGNUM *R
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
@@ -189,28 +189,28 @@ void BN_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {	
 	if(A->Sign != B->Sign) 
 	{	
-		if(BN_Abs_Cmp(A, B) == LARGE) // A > B ÀÎ °æ¿ì
+		if(BN_Abs_Cmp(A, B) == LARGE) // A > B ì¸ ê²½ìš°
 			BN_Abs_Add(R, A, B);
-		else // // A <= B ÀÎ °æ¿ì 
+		else // // A <= B ì¸ ê²½ìš° 
 			BN_Abs_Add(R, B, A);
 	
 		// ( a) - (-b) =  (a + b)
 		// (-a) - ( b) = -(a + b)
-		R->Sign = A->Sign; // °á°ú°¡ Å©±â »ó°ü ¾øÀÌ A ºÎÈ£ µû¶ó°¨
+		R->Sign = A->Sign; // ê²°ê³¼ê°€ í¬ê¸° ìƒê´€ ì—†ì´ A ë¶€í˜¸ ë”°ë¼ê°
 	}
-	else // A->Sign == B->Sign ÀÎ °æ¿ì
+	else // A->Sign == B->Sign ì¸ ê²½ìš°
 	{
 		// ( a) - ( b) =  a - b)
 		// (-a) - (-b) = -a + b)
 		if(BN_Abs_Cmp(A, B) == LARGE)
 		{
 			BN_Abs_Sub(R, A, B);
-			R->Sign = A->Sign; // °á°ú°¡ ´õ Å« ¼ö ºÎÈ£ µû¶ó°¨
+			R->Sign = A->Sign; // ê²°ê³¼ê°€ ë” í° ìˆ˜ ë¶€í˜¸ ë”°ë¼ê°
 		}
 		else // (A->Length < B->Length)
 		{
 			BN_Abs_Sub(R, B, A);
-			R->Sign = -(B->Sign); // - ¶§¹®¿¡ °á°ú°¡ ´õ Å« ¼ö ¹İ´ë ºÎÈ£ µû¶ó°¨
+			R->Sign = -(B->Sign); // - ë•Œë¬¸ì— ê²°ê³¼ê°€ ë” í° ìˆ˜ ë°˜ëŒ€ ë¶€í˜¸ ë”°ë¼ê°
 		}
 	}	
 }
@@ -218,10 +218,10 @@ void BN_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 /**
  * @brief Multiply BIGNUM *A and BIGNUM *B
  * @details
- * - BIGNUM *A ¿Í BIGNUM *B ¸¦ °öÇÑ °á°ú BIGNUM *R Ãâ·Â
- * - ±âº» °ö¼À ¹æ¹ı Àû¿ë
- * - ºÎÈ£ ±¸ºĞ °¡´É
- * - WORD °ö¼À -> R = A * B
+ * - BIGNUM *A ì™€ BIGNUM *B ë¥¼ ê³±í•œ ê²°ê³¼ BIGNUM *R ì¶œë ¥
+ * - ê¸°ë³¸ ê³±ì…ˆ ë°©ë²• ì ìš©
+ * - ë¶€í˜¸ êµ¬ë¶„ ê°€ëŠ¥
+ * - WORD ê³±ì…ˆ -> R = A * B
  * @param[out] BIGNUM *R
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
@@ -233,36 +233,36 @@ void BN_Basic_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 	UNWORD carry = 0;
 	UNWORD tmp[2];
 		
-	if((A->Length == 0) || (B->Length == 0)) // A or B °¡ 0 ÀÎ °æ¿ì
+	if((A->Length == 0) || (B->Length == 0)) // A or B ê°€ 0 ì¸ ê²½ìš°
 		BN_Zeroize(R); 
-	else if((A->Length == 1) && (A->Num[0] == 1)) // A = 1 or -1 ÀÎ °æ¿ì
+	else if((A->Length == 1) && (A->Num[0] == 1)) // A = 1 or -1 ì¸ ê²½ìš°
 		BN_Copy(R, B);
-	else if((B->Length == 1) && (B->Num[0] == 1)) // B = 1 or -1 ÀÎ °æ¿ì 
+	else if((B->Length == 1) && (B->Num[0] == 1)) // B = 1 or -1 ì¸ ê²½ìš° 
 		BN_Copy(R, A);
-	else // ½ÇÁ¦ °ö¼À ¿¬»ê
+	else // ì‹¤ì œ ê³±ì…ˆ ì—°ì‚°
 	{
 		for(i = 0 ; i < A->Length ; i++)
 		{
 			for(j = 0 ; j < B->Length ; j++)
 			{
-				// WORD * WORD °ö¼À , tmp[1]|tmp[0] Ãâ·Â
+				// WORD * WORD ê³±ì…ˆ , tmp[1]|tmp[0] ì¶œë ¥
 				UNWORD_Mul(tmp, A->Num[i], B->Num[j]);
 				
-				// °á°ú ¹è¿­¿¡ tmp[0] Ãß°¡
+				// ê²°ê³¼ ë°°ì—´ì— tmp[0] ì¶”ê°€
 				R->Num[i + j] += tmp[0];
 				carry = (R->Num[i + j] < tmp[0]); // carry 
 				tmp[1] = (tmp[1] + carry);
 				
-				// carry °í·ÁÇÑ µ¡¼À
-				carry = (tmp[1] < carry); // tmp[1] + c < c ÀÎ °æ¿ì carry 
+				// carry ê³ ë ¤í•œ ë§ì…ˆ
+				carry = (tmp[1] < carry); // tmp[1] + c < c ì¸ ê²½ìš° carry 
 				R->Num[i + j + 1] += tmp[1];
-				carry += (R->Num[i + j + 1] < tmp[1]); // A + B + c < A + c ÀÎ °æ¿ì carry ¹ß»ı
+				carry += (R->Num[i + j + 1] < tmp[1]); // A + B + c < A + c ì¸ ê²½ìš° carry ë°œìƒ
 				
-				// ÀÌÈÄ »óÀ§ ¹è¿­¿¡ ´ëÇÑ carry °í·Á, ÃÖ´ë ¹è¿­ : R->Num[A->Length + B->Length - 1]
+				// ì´í›„ ìƒìœ„ ë°°ì—´ì— ëŒ€í•œ carry ê³ ë ¤, ìµœëŒ€ ë°°ì—´ : R->Num[A->Length + B->Length - 1]
 				if((carry == 1) && ((i + j + 1) < (A->Length + B->Length)))
 				{
 					n = (i + j + 1);
-					while (carry) // »óÀ§ ¹è¿­·Î ¿Ã¶ó°¡¸é¼­ carry °è»ê
+					while (carry) // ìƒìœ„ ë°°ì—´ë¡œ ì˜¬ë¼ê°€ë©´ì„œ carry ê³„ì‚°
 					{
 						n++;
 						R->Num[n] += carry;
@@ -273,20 +273,20 @@ void BN_Basic_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		}
 	}
 	
-	// ºÎÈ£ °áÁ¤
+	// ë¶€í˜¸ ê²°ì •
 	R->Sign = (A->Sign * B->Sign);
 
-	// BIGNUM ÃÖÀûÈ­
+	// BIGNUM ìµœì í™”
 	BN_Optimize_Out(R);			
 }
 
 /**
  * @brief Multiply BIGNUM *A and BIGNUM *B by Karatsuba Multiplication
  * @details
- * - BIGNUM *A ¿Í BIGNUM *B ¸¦ °öÇÑ °á°ú BIGNUM *R Ãâ·Â
- * - ±âº» °ö¼À ¹æ¹ı Àû¿ë
- * - ºÎÈ£ ±¸ºĞ °¡´É
- * - WORD °ö¼À -> R = A * B
+ * - BIGNUM *A ì™€ BIGNUM *B ë¥¼ ê³±í•œ ê²°ê³¼ BIGNUM *R ì¶œë ¥
+ * - ê¸°ë³¸ ê³±ì…ˆ ë°©ë²• ì ìš©
+ * - ë¶€í˜¸ êµ¬ë¶„ ê°€ëŠ¥
+ * - WORD ê³±ì…ˆ -> R = A * B
  * @param[out] BIGNUM *R
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
@@ -294,22 +294,22 @@ void BN_Basic_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
  */
 void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {
-	BIGNUM u0, v0, u1, v1;			 // ±¸Á¶Ã¼¸¸ ÀÌ¿ë (A ÀÇ Num »ç¿ë)
-	BIGNUM us, vs, u0v0, u1v1, usvs, tmp; // BIGNUM »ı¼ºÇØ¼­ ÀÌ¿ë
+	BIGNUM u0, v0, u1, v1;			 // êµ¬ì¡°ì²´ë§Œ ì´ìš© (A ì˜ Num ì‚¬ìš©)
+	BIGNUM us, vs, u0v0, u1v1, usvs, tmp; // BIGNUM ìƒì„±í•´ì„œ ì´ìš©
 	
 	UNWORD d, q, p;
 	UNWORD d0 = 1;
 	
 	// d = max(a,b) 
 	d = (A->Length > B->Length) ? A->Length : B->Length;
-	// Floor, Ceil °úÁ¤ (p <= q)
+	// Floor, Ceil ê³¼ì • (p <= q)
 	// d = p + q
 	p = (d >> 1);
 	q = (d & 1) ? (p + 1) : (p);	
 		
-	if(p > d0) // d > KARA_THRESHOLD(d0) ÀÎ °æ¿ì Ä«¶óÃò¹Ù °ö¼À 
+	if(p > d0) // d > KARA_THRESHOLD(d0) ì¸ ê²½ìš° ì¹´ë¼ì¸„ë°” ê³±ì…ˆ 
 	{		
-		// u0, u1, v0, v1 ¼³Á¤
+		// u0, u1, v0, v1 ì„¤ì •
 		u0.Num = A->Num;		// u0 = (q-1, q-2, ..., 0)		// u0.Length = q
 		u1.Num = A->Num + q;	// u1 = (p+q-1, p+q-2, ..., q)	// u1.Length = p = (A->Length - q)
 		v0.Num = B->Num;		// v0 = (q-1, q-2, ..., 0)		// v0.Length = q
@@ -319,7 +319,7 @@ void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		u0.Sign = u1.Sign = PLUS;
 		v0.Sign = v1.Sign = PLUS;
 				
-		// p, q ¹üÀ§ Á¤ÇÏ±â (Áß¿ä)
+		// p, q ë²”ìœ„ ì •í•˜ê¸° (ì¤‘ìš”)
 		if(q > A->Length) // u1.Length = (A->Length - q) < 0
 		{
 			u0.Length = A->Length;
@@ -340,7 +340,7 @@ void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 			v0.Length = q;
 			v1.Length = (p > B->Length - q) ? (B->Length - q) : p;
 		}
-		// ¿¬»ê °á°ú BIGNUM »ı¼º
+		// ì—°ì‚° ê²°ê³¼ BIGNUM ìƒì„±
 		BN_Init(&us, (u0.Length + 1), PLUS, DEFAULT);
 		BN_Init(&vs, (v0.Length + 1), PLUS, DEFAULT);
 		BN_Init(&u0v0, (u0.Length + v0.Length), PLUS, DEFAULT);
@@ -364,7 +364,7 @@ void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 
 		// R = (u1v1)^2q + (usvs)^q + u0v0
 		// R += u0v0
-		R->Length = u0v0.Length + 1; // carry °í·ÁÇÏ¿© ±æÀÌ + 1
+		R->Length = u0v0.Length + 1; // carry ê³ ë ¤í•˜ì—¬ ê¸¸ì´ + 1
 		BN_Abs_Add(R, R, &u0v0);
 		// R += (usvs)^q
 		R->Num += q;
@@ -375,11 +375,11 @@ void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		R->Length = u1v1.Length + 1; 
 		BN_Abs_Add(R, R, &u1v1);
 		
-		// R ±æÀÌ ¼öÁ¤
+		// R ê¸¸ì´ ìˆ˜ì •
 		R->Length = A->Length + B->Length; 
 		R->Num -= (q << 1);
 
-		// BIGNUM ÇÒ´ç ÇØÁ¦ 
+		// BIGNUM í• ë‹¹ í•´ì œ 
 		BN_Zero_Free(&us);
 		BN_Zero_Free(&vs);
 		BN_Zero_Free(&u0v0);
@@ -388,7 +388,7 @@ void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		BN_Zero_Free(&tmp);
 
 	}
-	else // d <= KARA_THRESHOLD(d0) ÀÎ °æ¿ì ±âº» Mul ¼öÇà
+	else // d <= KARA_THRESHOLD(d0) ì¸ ê²½ìš° ê¸°ë³¸ Mul ìˆ˜í–‰
 		BN_Basic_Mul(R, A, B);
 		
 }
@@ -396,10 +396,10 @@ void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 /**
  * @brief Multiplication (Basic or Karatsuba)
  * @details
- * - BIGNUM *A ¿Í BIGNUM *B ¸¦ °öÇÑ °á°ú BIGNUM *R Ãâ·Â
- * - ±âº» °ö¼À ¹æ¹ı Àû¿ë
- * - ºÎÈ£ ±¸ºĞ °¡´É
- * - WORD °ö¼À -> R = A * B
+ * - BIGNUM *A ì™€ BIGNUM *B ë¥¼ ê³±í•œ ê²°ê³¼ BIGNUM *R ì¶œë ¥
+ * - ê¸°ë³¸ ê³±ì…ˆ ë°©ë²• ì ìš©
+ * - ë¶€í˜¸ êµ¬ë¶„ ê°€ëŠ¥
+ * - WORD ê³±ì…ˆ -> R = A * B
  * @param[out] BIGNUM *R
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
@@ -414,10 +414,10 @@ void BN_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 /**
  * @brief Square BIGNUM *A 
  * @details
- * - BIGNUM *A ÀÇ Á¦°ö °á°ú BIGNUM *R Ãâ·Â
- * - °ö¼À º¸´Ù UNWORD °öÀÇ ¼ö ÀûÀ½
- * - ºÎÈ£ ±¸ºĞ °¡´É
- * - WORD °ö¼À -> R = (A)^2
+ * - BIGNUM *A ì˜ ì œê³± ê²°ê³¼ BIGNUM *R ì¶œë ¥
+ * - ê³±ì…ˆ ë³´ë‹¤ UNWORD ê³±ì˜ ìˆ˜ ì ìŒ
+ * - ë¶€í˜¸ êµ¬ë¶„ ê°€ëŠ¥
+ * - WORD ê³±ì…ˆ -> R = (A)^2
  * @param[out] BIGNUM *R
  * @param[in] BIGNUM *A (const)
  * @date 2017. 03. 28. v1.00 \n
@@ -429,35 +429,35 @@ void BN_Sqr(BIGNUM *R, const BIGNUM *A)
 	UNWORD tmp[3];
 	UNWORD m0, m1;
 			
-	if(A->Length == 0) // A °¡ 0 ÀÎ °æ¿ì
+	if(A->Length == 0) // A ê°€ 0 ì¸ ê²½ìš°
 		BN_Zeroize(R); 
-	else if((A->Length == 1) && (A->Num[0] == 1)) // A = 1 or -1 ÀÎ °æ¿ì
+	else if((A->Length == 1) && (A->Num[0] == 1)) // A = 1 or -1 ì¸ ê²½ìš°
 		BN_Copy(R, A);
-	else // ½ÇÁ¦ Á¦°ö ¿¬»ê
+	else // ì‹¤ì œ ì œê³± ì—°ì‚°
 	{
 		for(i = 0 ; i < A->Length ; i++)
 		{
 			m0 = i << 1; // (2 * i)
 			m1 = m0 + 1; // (2 * i) + 1
 
-			// (WORD)^2 Á¦°ö , tmp[1]|tmp[0] Ãâ·Â
+			// (WORD)^2 ì œê³± , tmp[1]|tmp[0] ì¶œë ¥
 			UNWORD_Sqr(tmp, A->Num[i]);
 
-			// °á°ú ¹è¿­¿¡ tmp[0] Ãß°¡
+			// ê²°ê³¼ ë°°ì—´ì— tmp[0] ì¶”ê°€
 			R->Num[m0] += tmp[0];
 			carry = (R->Num[m0] < tmp[0]); // carry 
 
-			// carry °í·ÁÇÑ µ¡¼À
+			// carry ê³ ë ¤í•œ ë§ì…ˆ
 			tmp[1] = (tmp[1] + carry);
-			carry = (tmp[1] < carry); // tmp[1] + c < c ÀÎ °æ¿ì carry 
+			carry = (tmp[1] < carry); // tmp[1] + c < c ì¸ ê²½ìš° carry 
 			R->Num[m1] += tmp[1];
-			if(R->Num[m1] < tmp[1]) // A + B + c < A + c ÀÎ °æ¿ì carry ¹ß»ı
+			if(R->Num[m1] < tmp[1]) // A + B + c < A + c ì¸ ê²½ìš° carry ë°œìƒ
 				carry += 1;
 						
-			// ÀÌÈÄ »óÀ§ ¹è¿­¿¡ ´ëÇÑ carry °í·Á, ÃÖ´ë ¹è¿­ : R->Num[(2 * A->Length) - 1]
+			// ì´í›„ ìƒìœ„ ë°°ì—´ì— ëŒ€í•œ carry ê³ ë ¤, ìµœëŒ€ ë°°ì—´ : R->Num[(2 * A->Length) - 1]
 			if((carry == 1) && (m1 < (A->Length << 1)))
 			{
-				while (carry) // »óÀ§ ¹è¿­·Î ¿Ã¶ó°¡¸é¼­ carry °è»ê
+				while (carry) // ìƒìœ„ ë°°ì—´ë¡œ ì˜¬ë¼ê°€ë©´ì„œ carry ê³„ì‚°
 				{
 					m1++;
 					R->Num[m1] += carry;
@@ -467,22 +467,22 @@ void BN_Sqr(BIGNUM *R, const BIGNUM *A)
 			
 			for(j = i + 1 ; j < A->Length ; j++)
 			{
-				// (WORD * WORD) * 2 , tmp[2]|tmp[1]|tmp[0] Ãâ·Â (ÃÖ´ë 3 ¹è¿­)
+				// (WORD * WORD) * 2 , tmp[2]|tmp[1]|tmp[0] ì¶œë ¥ (ìµœëŒ€ 3 ë°°ì—´)
 				UNWORD_2_Mul(tmp, A->Num[i], A->Num[j]);
 				
-				// °á°ú ¹è¿­¿¡ tmp[0] Ãß°¡
+				// ê²°ê³¼ ë°°ì—´ì— tmp[0] ì¶”ê°€
 				R->Num[i + j] += tmp[0];
 				carry = (R->Num[i + j] < tmp[0]); // carry 
 				tmp[1] = (tmp[1] + carry);
-				carry = (tmp[1] < carry); // tmp[1] + c < c ÀÎ °æ¿ì carry 
+				carry = (tmp[1] < carry); // tmp[1] + c < c ì¸ ê²½ìš° carry 
 				R->Num[i + j + 1] += tmp[1];
-				carry += (R->Num[i + j + 1] < tmp[1]) + tmp[2]; // A + B + c < A + c ÀÎ °æ¿ì carry ¹ß»ı
+				carry += (R->Num[i + j + 1] < tmp[1]) + tmp[2]; // A + B + c < A + c ì¸ ê²½ìš° carry ë°œìƒ
 				
-				// ÀÌÈÄ »óÀ§ ¹è¿­¿¡ ´ëÇÑ carry °í·Á, ÃÖ´ë ¹è¿­ : (2 * R->Num[A->Length]) - 1]
+				// ì´í›„ ìƒìœ„ ë°°ì—´ì— ëŒ€í•œ carry ê³ ë ¤, ìµœëŒ€ ë°°ì—´ : (2 * R->Num[A->Length]) - 1]
 				if((carry > 0) && ((i + j + 1) < (A->Length << 1)))
 				{
 					n = (i + j + 1);
-					while (carry) // »óÀ§ ¹è¿­·Î ¿Ã¶ó°¡¸é¼­ carry °è»ê
+					while (carry) // ìƒìœ„ ë°°ì—´ë¡œ ì˜¬ë¼ê°€ë©´ì„œ carry ê³„ì‚°
 					{
 						n++;
 						R->Num[n] += carry;
@@ -493,10 +493,10 @@ void BN_Sqr(BIGNUM *R, const BIGNUM *A)
 		}
 	}
 	
-	// ºÎÈ£ ¹«Á¶°Ç ¾ç¼ö
+	// ë¶€í˜¸ ë¬´ì¡°ê±´ ì–‘ìˆ˜
 	R->Sign = PLUS;
 	
-	// BIGNUM ÃÖÀûÈ­
+	// BIGNUM ìµœì í™”
 	BN_Optimize_Out(R);	
 }
 
@@ -504,49 +504,49 @@ void BN_Sqr(BIGNUM *R, const BIGNUM *A)
  * @brief Barret Reduction of BIGNUM
  * @details
  * - 
- * - Guide to ECC p.36 Âü°í \n
+ * - Guide to ECC p.36 ì°¸ê³  \n
  * @param[out] BIGNUM *R 
  * @param[in] BIGNUM *Z (const)
  * @param[in] BIGNUM *P (const)
  * @param[in] BIGNUM *MU (const)
  * @date 2017. 03. 29. v1.00 \n
- * @todo ¾ÆÁ÷ ¹Ì¿Ï¼º
+ * @todo ì•„ì§ ë¯¸ì™„ì„±
  */
 void BN_Bar_Redc(BIGNUM *R, const BIGNUM *Z, const BIGNUM *P, const BIGNUM *MU)
 {	
-	BIGNUM qh, qh_p, s_tmp;	// BN_Init() ÇÊ¿ä 
-	BIGNUM tmp;				// BIGNUM ÁÖ¼Ò¸¸ È°¿ë
+	BIGNUM qh, qh_p, s_tmp;	// BN_Init() í•„ìš” 
+	BIGNUM tmp;				// BIGNUM ì£¼ì†Œë§Œ í™œìš©
 	UNWORD k;
 	
-	// È®ÀÎ»çÇ×
-	// Input Á¶°Ç µûÁ®Áà¾ß ÇÏ³ª ? -> P >= 3 
-	// Z == P ÀÎ °æ¿ì´Â ??
-	// Reduction °á°ú ÃÖÀûÈ­ ¹®Á¦ ?
+	// í™•ì¸ì‚¬í•­
+	// Input ì¡°ê±´ ë”°ì ¸ì¤˜ì•¼ í•˜ë‚˜ ? -> P >= 3 
+	// Z == P ì¸ ê²½ìš°ëŠ” ??
+	// Reduction ê²°ê³¼ ìµœì í™” ë¬¸ì œ ?
 
-	// BIGNUM ¿¬»ê ÃÖ´ë Å©±â °í·Á
-	BN_Init(&qh, 0, ZERO); // Å©±â ¼öÁ¤
+	// BIGNUM ì—°ì‚° ìµœëŒ€ í¬ê¸° ê³ ë ¤
+	BN_Init(&qh, 0, ZERO); // í¬ê¸° ìˆ˜ì •
 	BN_Init(&qh_p, 0, ZERO);
 	
 
-	// Z < P ÀÎ °æ¿ì -> Reduction ÇÊ¿ä X
+	// Z < P ì¸ ê²½ìš° -> Reduction í•„ìš” X
 	if(BN_Abs_Cmp(Z, P) == SMALL)
 		BN_Copy(R, Z); 
-	else // Z > P ÀÎ °æ¿ì Reduction ¼öÇà
+	else // Z > P ì¸ ê²½ìš° Reduction ìˆ˜í–‰
 	{
-		// b = 2^(L), L : WORD Å©±â or ÇÁ·Î¼¼¼­ ´ÜÀ§
+		// b = 2^(L), L : WORD í¬ê¸° or í”„ë¡œì„¸ì„œ ë‹¨ìœ„
 		k = P->Length;	// k = Ceil(log_b(P)) + 1 
 		
-		// Ceil(Z / b^(k-1)) °è»ê (¿öµå ´ÜÀ§ >> ¿¬»ê)
-		tmp.Num = Z->Num + k - 1; // ±âÁØ Æ÷ÀÎÅÍ À§Ä¡ º¯°æ
+		// Ceil(Z / b^(k-1)) ê³„ì‚° (ì›Œë“œ ë‹¨ìœ„ >> ì—°ì‚°)
+		tmp.Num = Z->Num + k - 1; // ê¸°ì¤€ í¬ì¸í„° ìœ„ì¹˜ ë³€ê²½
 		tmp.Length = Z->Length - k + 1; 
-		tmp.Sign = Z->Sign; // Ç×»ó Z > 0
+		tmp.Sign = Z->Sign; // í•­ìƒ Z > 0
 				
 		BN_Mul(&qh, &tmp, MU);
-		// Ceil(qh / b^(k+1)) °è»ê (¿öµå ´ÜÀ§ >> ¿¬»ê)
+		// Ceil(qh / b^(k+1)) ê³„ì‚° (ì›Œë“œ ë‹¨ìœ„ >> ì—°ì‚°)
 		qh.Num += (k + 1); 
 		qh.Length -= (k + 1);
 
-		// Z mod b^(k+1) -> k + 1 º¸´Ù ÀÛÀº ¹è¿­¸¸ »ì¸²
+		// Z mod b^(k+1) -> k + 1 ë³´ë‹¤ ì‘ì€ ë°°ì—´ë§Œ ì‚´ë¦¼
 		tmp.Num = Z->Num;
 		tmp.Length = k;
 		
@@ -558,16 +558,16 @@ void BN_Bar_Redc(BIGNUM *R, const BIGNUM *Z, const BIGNUM *P, const BIGNUM *MU)
 		// Z mod b^(k+1) - (qh * P) mod b^(k+1)
 		BN_Sub(R, &tmp, &qh_p);
 		
-		// R ÀÌ À½¼ö -> R = R + b^(k+1)
+		// R ì´ ìŒìˆ˜ -> R = R + b^(k+1)
 		if(R->Sign == MINUS)
 		{
-			BN_Init(&s_tmp, k + 1, ZERO, DEFAULT); // (k+1) °³ s_tmp.Num ¹è¿­ -> 0 ÃÊ±âÈ­
+			BN_Init(&s_tmp, k + 1, ZERO, DEFAULT); // (k+1) ê°œ s_tmp.Num ë°°ì—´ -> 0 ì´ˆê¸°í™”
 			s_tmp.Num[k + 1] = 1;	// b^(k+1) ex) 0x10..0
 			s_tmp.Sign = PLUS;
 
 			BN_Add(R, &s_tmp, R);
 		}
-		// R >= p ÀÌ¸é -> R - p ¹İº¹
+		// R >= p ì´ë©´ -> R - p ë°˜ë³µ
 		while(BN_Abs_Cmp(R, P) != MINUS)
 			BN_Sub(R, R, P);		
 	}
@@ -581,14 +581,14 @@ void BN_Bar_Redc(BIGNUM *R, const BIGNUM *Z, const BIGNUM *P, const BIGNUM *MU)
  * @brief Montgomery Reduction of BIGNUM
  * @details
  * - 
- * - Handbook of E&HC p.181 Âü°í \n
+ * - Handbook of E&HC p.181 ì°¸ê³  \n
  * @param[out] BIGNUM *T 
  * @param[in] BIGNUM *N (const)
  * @param[in] BIGNUM *R (const)
  * @param[in] UNWORD Np (const)
  * @param[in] BIGNUM *U (const)
  * @date 2017. 03. 29. v1.00 \n
- * @todo ¾ÆÁ÷ ¹Ì¿Ï¼º
+ * @todo ì•„ì§ ë¯¸ì™„ì„±
  */
 void BN_Mont_Redc(BIGNUM *T, const BIGNUM *N, const BIGNUM *R, const UNWORD Np, const BIGNUM *U)
 {	
@@ -606,13 +606,13 @@ void BN_Mont_Redc(BIGNUM *T, const BIGNUM *N, const BIGNUM *R, const UNWORD Np, 
 		k = tmp[0]; // k = (ti * Np) mod b
 		BN_UNWORD_Mul(knb, N, k);
 
-		// ¿¬»êÇÏ±â À§ÇÑ À§Ä¡·Î ÀÌµ¿
+		// ì—°ì‚°í•˜ê¸° ìœ„í•œ ìœ„ì¹˜ë¡œ ì´ë™
 		t.Num += i;
 		t.Length -= i;
 
 		BN_ADD(&t, &t, knb);
 		
-		// ±âÁ¸ À§Ä¡·Î º¹±Í
+		// ê¸°ì¡´ ìœ„ì¹˜ë¡œ ë³µê·€
 		t.Num -= i;
 		t.Length += i;
 	}

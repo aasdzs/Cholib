@@ -1,4 +1,4 @@
-#include "benchmark.h"
+ï»¿#include "benchmark.h"
 #include "config.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ uint_32t calibrate()
 
 void Benchmark_Test()
 {
-	//½Ã°£ Check º¯¼ö
+	//ì‹œê°„ Check ë³€ìˆ˜
 	uint_32t calibration;
 
 	uint_32t tMin = 0xFFFFFFFF;         // big number to start 
@@ -86,20 +86,20 @@ void Benchmark_Test()
 
 	srand(time(NULL)&0xFFFFFFFF);
 
-	// ½Ã°£ ÃøÁ¤
+	// ì‹œê°„ ì¸¡ì •
 	printf("------------------------------------------------------------\n");
 	printf("	Benchmark Result (Average : %d, Iteration : %d)\n", AVERAGE_COUNT, ITERATION_COUNT);
 	printf("------------------------------------------------------------\n");
 	printf("\n");
 
-	calibration = calibrate(); // HiResTime(); È£Ãâ½Ã°£À» ÃøÁ¤ÇØ¼­ ÃÖ¼Ò°ªÀ» ³Ö°í ³ªÁß¿¡ »­
+	calibration = calibrate(); // HiResTime(); í˜¸ì¶œì‹œê°„ì„ ì¸¡ì •í•´ì„œ ìµœì†Œê°’ì„ ë„£ê³  ë‚˜ì¤‘ì— ëºŒ
 
-	// Æò±ÕÄ¡ ÃøÁ¤ À§ÇÑ ¹İº¹
+	// í‰ê· ì¹˜ ì¸¡ì • ìœ„í•œ ë°˜ë³µ
 	for (it_1 = 0 ; it_1 < AVERAGE_COUNT ; it_1++)
 	{
 		tMin = 0xFFFFFFFF;
 		
-		// ¹İº¹ ¼öÇà ÇßÀ» ¶§ ÃÖ¼Ò ½Ã°£ ÃøÁ¤
+		// ë°˜ë³µ ìˆ˜í–‰ í–ˆì„ ë•Œ ìµœì†Œ ì‹œê°„ ì¸¡ì •
 		for (it_2 = 0 ; it_2 < ITERATION_COUNT ; it_2++)  // calibrate the overhead for measuring time //
 		{
 			t0 = HiResTime();

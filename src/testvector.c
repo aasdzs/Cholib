@@ -1,4 +1,4 @@
-#include "config.h"
+ï»¿#include "config.h"
 #include "bignum.h"
 #include "bn_operation.h"
 #include "wd_operation.h"
@@ -12,28 +12,28 @@ void sagetest_bignum()
 	
     srand(time(NULL));
 	
-#if 1 // ±âº» ÇÔ¼ö Å×½ºÆ® 
+#if 1 // ê¸°ë³¸ í•¨ìˆ˜ í…ŒìŠ¤íŠ¸ 
 	for(n = 0 ; n < 10 ; n++)
 	{
-		//// BIGNUM ·£´ý »ý¼º
+		//// BIGNUM ëžœë¤ ìƒì„±
 		BN_Init_Rand(&A, 8);
 		BN_Init_Rand(&B, 8);
 
 		//BN_Init_Zero(&A);
 		//BN_Init_Zero(&B);
 		
-		//// ±âÁ¸ÀÇ BIGNUM ±¸Á¶Ã¼ ·£´ýÈ­
+		//// ê¸°ì¡´ì˜ BIGNUM êµ¬ì¡°ì²´ ëžœë¤í™”
 		//BN_Init(&A, 8, PLUS);
 		//BN_Init(&B, 8, PLUS);
 		//BN_Init(&B, 16, PLUS);
 		//BN_Rand(&A);
 		//BN_Rand(&B);
 		
-		//// ¸ðµç BN.Num[] = 0 À¸·Î ¼¼ÆÃ
+		//// ëª¨ë“  BN.Num[] = 0 ìœ¼ë¡œ ì„¸íŒ…
 		//BN_Zero(&A);
 		//BN_Zero(&B);
 
-		//// BIGNUM µ¿ÀûÇÒ´ç ÇØÁö 
+		//// BIGNUM ë™ì í• ë‹¹ í•´ì§€ 
 		//BN_Free(&A);
 		//BN_Free(&B);
 		//BN_Zero_Free(&A);
@@ -42,10 +42,10 @@ void sagetest_bignum()
 		//BN_Realloc_Mem(&A, A.Length);
 		//BN_Realloc_Mem(&B, A.Length);
 
-		//// ºò³Ñ º¹»ç 
+		//// ë¹…ë„˜ ë³µì‚¬ 
 		//BN_Copy(&B, &A);
 
-		////// ºò³Ñ Å©±â ºñ±³;
+		////// ë¹…ë„˜ í¬ê¸° ë¹„êµ;
 		//printf("AbsCmp : %s\n", (BN_Abs_Cmp(&A, &B) == 1 ? "A > B" : "A < B"));
 		//printf("Cmp : %s\n", (BN_Cmp(&A, &B) == 1 ? "A > B" : "A < B"));
 		//printf("\n"); 
@@ -78,15 +78,15 @@ void sagetest_bn_operation()
     srand(time(NULL));
 	fopen_s(&fp, "sagetest_bn_operation.txt", "at");   
 
-// ¿¬»ê Å×½ºÆ® 
+// ì—°ì‚° í…ŒìŠ¤íŠ¸ 
 #if 1
 	for(n = 0 ; n < 1 ; n++)
 	{
-		//// BIGNUM ·£´ý »ý¼º
+		//// BIGNUM ëžœë¤ ìƒì„±
 		//BN_Init_Rand(&A, 8);
 		//BN_Init_Rand(&B, 8);
 		
-		//// ±âÁ¸ÀÇ BIGNUM ±¸Á¶Ã¼ ·£´ýÈ­
+		//// ê¸°ì¡´ì˜ BIGNUM êµ¬ì¡°ì²´ ëžœë¤í™”
 		BN_Init(&A, 4, PLUS);
 		BN_Init(&B, 4, PLUS);
 		BN_Init(&R, 8, PLUS);
@@ -133,7 +133,7 @@ void sagetest_bn_operation()
 
 		
 		
-		fprintf(fp, ") * "); // ¿¬»ê
+		fprintf(fp, ") * "); // ì—°ì‚°
 		
 		/*
 		fprintf(fp, "(%s0x", (A.Sign == -1) ? "-" : "+");

@@ -1,4 +1,4 @@
-
+﻿
 #include "config.h"
 
 SNINT main ()

@@ -1,4 +1,4 @@
-#ifndef _WD_OPERATION_H_
+﻿#ifndef _WD_OPERATION_H_
 #define _WD_OPERATION_H_
 
 #include "config.h"

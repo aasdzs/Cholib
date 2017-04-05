@@ -1,13 +1,13 @@
-/**
+ï»¿/**
  * @file wd_operation.c
- * @brief WORD ´ÜÀ§ ¿¬»ê
+ * @brief WORD ë‹¨ìœ„ ì—°ì‚°
  * @details 
  * - Addition
  * - Square
  * - Multiplication
  * - Modular
  * - inversion
- * ÀÚ¼¼ÇÑ ¼³¸í
+ * ìžì„¸í•œ ì„¤ëª…
  * @date 2017. 03 ~ 07.
  * @author YoungJin CHO
  * @version 1.00
@@ -20,8 +20,8 @@
 /**
  * @brief Multiply UNWORD A from UNWORD B
  * @details
- * - UNWORD A ¿¡¼­ UNWORD B ¸¦ °öÇØ¼­ UNWORD *R Ãâ·Â (ÃÖ´ë 2 WORD Å©±â)
- * - UNWORD °ö¼À -> R = A * B
+ * - UNWORD A ì—ì„œ UNWORD B ë¥¼ ê³±í•´ì„œ UNWORD *R ì¶œë ¥ (ìµœëŒ€ 2 WORD í¬ê¸°)
+ * - UNWORD ê³±ì…ˆ -> R = A * B
  * @param[out] UNWORD *R
  * @param[in] UNWORD A (const)
  * @param[in] UNWORD B (const)
@@ -31,8 +31,8 @@ void UNWORD_Mul(UNWORD *r, const UNWORD a, const UNWORD b)
 {	
 	UNWORD half_len = BIT_LEN / 2;
 	
-	UNWORD a_H = (a >> half_len); // WORD »óÀ§ Àý¹Ý bit
-	UNWORD a_L = (a & WORD_MASK_L); // WORD ÇÏÀ§ Àý¹Ý bit
+	UNWORD a_H = (a >> half_len); // WORD ìƒìœ„ ì ˆë°˜ bit
+	UNWORD a_L = (a & WORD_MASK_L); // WORD í•˜ìœ„ ì ˆë°˜ bit
 	UNWORD b_H = (b >> half_len);
 	UNWORD b_L = (b & WORD_MASK_L);
 	
@@ -56,8 +56,8 @@ void UNWORD_Mul(UNWORD *r, const UNWORD a, const UNWORD b)
 /**
  * @brief Multiply BIGNUM A from UNWORD b
  * @details
- * - BIGNUM A ¿¡¼­ UNWORD B ¸¦ °öÇØ¼­ BIGNUM *R Ãâ·Â (ÃÖ´ë 2 WORD Å©±â)
- * - BIGNUM * UNWORD ¿¬»ê -> R = A * b
+ * - BIGNUM A ì—ì„œ UNWORD B ë¥¼ ê³±í•´ì„œ BIGNUM *R ì¶œë ¥ (ìµœëŒ€ 2 WORD í¬ê¸°)
+ * - BIGNUM * UNWORD ì—°ì‚° -> R = A * b
  * @param[out] BIGNUM *R
  * @param[in] BIGNUM A (const)
  * @param[in] UNWORD b (const)
@@ -69,34 +69,34 @@ void BN_UNWORD_Mul(BIGNUM *R, const BIGNUM *A, const UNWORD b)
 	UNWORD carry = 0;
 	UNWORD tmp[2];
 		
-	if((A->Length == 0) || (b == 0)) // BIGNUM *A or UNWORD b °¡ 0 ÀÎ °æ¿ì
+	if((A->Length == 0) || (b == 0)) // BIGNUM *A or UNWORD b ê°€ 0 ì¸ ê²½ìš°
 		BN_Zeroize(R); 
-	else if(b == 1) // UNWORD b == 1 ÀÎ °æ¿ì
+	else if(b == 1) // UNWORD b == 1 ì¸ ê²½ìš°
 		BN_Copy(R, A);
-	else if((A->Length == 1) && (A->Num[0] == 1)) // B = 1 or -1 ÀÎ °æ¿ì 
+	else if((A->Length == 1) && (A->Num[0] == 1)) // B = 1 or -1 ì¸ ê²½ìš° 
 		R->Num[0] = b;
-	else // ½ÇÁ¦ °ö¼À ¿¬»ê
+	else // ì‹¤ì œ ê³±ì…ˆ ì—°ì‚°
 	{
 		for(i = 0 ; i < A->Length ; i++)
 		{
-			// WORD * WORD °ö¼À , tmp[1]|tmp[0] Ãâ·Â
+			// WORD * WORD ê³±ì…ˆ , tmp[1]|tmp[0] ì¶œë ¥
 			UNWORD_Mul(tmp, A->Num[i], b);
 			
-			// °á°ú ¹è¿­¿¡ tmp[0] Ãß°¡
+			// ê²°ê³¼ ë°°ì—´ì— tmp[0] ì¶”ê°€
 			R->Num[i] += tmp[0];
 			carry = (R->Num[i] < tmp[0]); // carry 
 			tmp[1] = (tmp[1] + carry);
 			
-			// carry °í·ÁÇÑ µ¡¼À
-			carry = (tmp[1] < carry); // tmp[1] + c < c ÀÎ °æ¿ì carry 
+			// carry ê³ ë ¤í•œ ë§ì…ˆ
+			carry = (tmp[1] < carry); // tmp[1] + c < c ì¸ ê²½ìš° carry 
 			R->Num[i + 1] += tmp[1];
-			carry += (R->Num[i + 1] < tmp[1]); // A + B + c < A + c ÀÎ °æ¿ì carry ¹ß»ý
+			carry += (R->Num[i + 1] < tmp[1]); // A + B + c < A + c ì¸ ê²½ìš° carry ë°œìƒ
 			
-			// ÀÌÈÄ »óÀ§ ¹è¿­¿¡ ´ëÇÑ carry °í·Á, ÃÖ´ë ¹è¿­ : R->Num[A->Length + B->Length - 1]
+			// ì´í›„ ìƒìœ„ ë°°ì—´ì— ëŒ€í•œ carry ê³ ë ¤, ìµœëŒ€ ë°°ì—´ : R->Num[A->Length + B->Length - 1]
 			if((carry == 1) && ((i + 1) < (A->Length)))
 			{
 				n = (i + 1);
-				while (carry) // »óÀ§ ¹è¿­·Î ¿Ã¶ó°¡¸é¼­ carry °è»ê
+				while (carry) // ìƒìœ„ ë°°ì—´ë¡œ ì˜¬ë¼ê°€ë©´ì„œ carry ê³„ì‚°
 				{
 					n++;
 					R->Num[n] += carry;
@@ -106,18 +106,18 @@ void BN_UNWORD_Mul(BIGNUM *R, const BIGNUM *A, const UNWORD b)
 		}
 	}
 	
-	// ºÎÈ£ °áÁ¤
+	// ë¶€í˜¸ ê²°ì •
 	R->Sign = A->Sign;
 
-	// BIGNUM ÃÖÀûÈ­
+	// BIGNUM ìµœì í™”
 	BN_Optimize_Out(R);		
 }
 
 /**
  * @brief Multiply UNWORD A and B and 2
  * @details
- * - UNWORD A * B * 2 => UNWORD *R Ãâ·Â (ÃÖ´ë 3 WORD Å©±â)
- * - UNWORD °ö¼À -> R = 2 * (A * B)
+ * - UNWORD A * B * 2 => UNWORD *R ì¶œë ¥ (ìµœëŒ€ 3 WORD í¬ê¸°)
+ * - UNWORD ê³±ì…ˆ -> R = 2 * (A * B)
  * @param[out] UNWORD *R
  * @param[in] UNWORD A (const)
  * @param[in] UNWORD B (const)
@@ -127,7 +127,7 @@ void UNWORD_2_Mul(UNWORD *r, const UNWORD a, const UNWORD b)
 {	
 	UNWORD tmp_h, tmp_l;
 	
-	// WORD ´ÜÀ§ °ö¼À
+	// WORD ë‹¨ìœ„ ê³±ì…ˆ
 	UNWORD_Mul(r, a, b);
 
 	tmp_h = (r[1] << 1); // r[1] * 2
@@ -141,9 +141,9 @@ void UNWORD_2_Mul(UNWORD *r, const UNWORD a, const UNWORD b)
 /**
  * @brief Square UNWORD A
  * @details
- * - UNWORD A ¸¦ Á¦°öÇØ¼­ UNWORD *R Ãâ·Â (ÃÖ´ë 2 WORD Å©±â)
- * - UNWORD Á¦°ö -> R = (A)^2
- * - ´Ù¸¥ ¹æ¹ýµéÀÌ¶û ¼Óµµ Â÷ÀÌ °ÅÀÇ ¾øÀ½..
+ * - UNWORD A ë¥¼ ì œê³±í•´ì„œ UNWORD *R ì¶œë ¥ (ìµœëŒ€ 2 WORD í¬ê¸°)
+ * - UNWORD ì œê³± -> R = (A)^2
+ * - ë‹¤ë¥¸ ë°©ë²•ë“¤ì´ëž‘ ì†ë„ ì°¨ì´ ê±°ì˜ ì—†ìŒ..
  * @param[out] UNWORD *R
  * @param[in] UNWORD A (const)
  * @date 2017. 03. 28. v1.00 \n
@@ -152,15 +152,15 @@ void UNWORD_Sqr(UNWORD *r, const UNWORD a)
 {	
 	UNWORD half_len = BIT_LEN / 2;
 	
-	UNWORD a_H = (a >> half_len);	// WORD »óÀ§ Àý¹Ý bit
-	UNWORD a_L = (a & WORD_MASK_L); // WORD ÇÏÀ§ Àý¹Ý bit
+	UNWORD a_H = (a >> half_len);	// WORD ìƒìœ„ ì ˆë°˜ bit
+	UNWORD a_L = (a & WORD_MASK_L); // WORD í•˜ìœ„ ì ˆë°˜ bit
 	
 	UNWORD aH_bL = (a_H * a_L);
 	
 	r[1] = (a_H * a_H); 
 	r[0] = (a_L * a_L); 
 		
-	// 2¹ø ¹Ýº¹
+	// 2ë²ˆ ë°˜ë³µ
 	r[1] += (aH_bL >> half_len);
 	r[0] += (aH_bL << half_len);
 	if(r[0] < (aH_bL << half_len)) // carry 

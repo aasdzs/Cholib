@@ -1,4 +1,4 @@
-#ifndef _BIGNUM_H_
+﻿#ifndef _BIGNUM_H_
 #define _BIGNUM_H_
 
 #include "config.h"
