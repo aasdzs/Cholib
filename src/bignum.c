@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file bignum.c
  * @brief 
  * @details 
@@ -20,12 +20,12 @@
 /**
  * @brief Initialize to BIGNUM
  * @details 
- * - ¸Ş¸ğ¸® ÇÔ¼ö ³»ºÎ¿¡¼­ ÇÒ´ç \n
+ * - ë©”ëª¨ë¦¬ í•¨ìˆ˜ ë‚´ë¶€ì—ì„œ í• ë‹¹ \n
  * - Get BIGNUM struct (Num, Length, Sign, Flag) -> Generate BIGNUM \n
  * @param[in,out] BIGNUM *A 
- * @param[in] UNWORD len (const) ±æÀÌ
- * @param[in] SNWORD sign (const) ºÎÈ£
- * @param[in] SNWORD flag (const) ÃÖÀûÈ­ ¿É¼Ç
+ * @param[in] UNWORD len (const) ê¸¸ì´
+ * @param[in] SNWORD sign (const) ë¶€í˜¸
+ * @param[in] SNWORD flag (const) ìµœì í™” ì˜µì…˜
  * @date 2017. 03. 28. v1.00 \n
  * @date 2017. 03. 30. v1.01 (Flag) \n
  */
@@ -40,7 +40,7 @@ void BN_Init(BIGNUM *A, const UNWORD len, const SNWORD sign, const SNWORD flag)
 /**
  * @brief Initialize to Zero BIGNUM
  * @details
- * - ¸Ş¸ğ¸® ÇÔ¼ö ³»ºÎ¿¡¼­ ÇÒ´ç \n
+ * - ë©”ëª¨ë¦¬ í•¨ìˆ˜ ë‚´ë¶€ì—ì„œ í• ë‹¹ \n
  * - Generate Zero BIGNUM \n
  * - Length = 1, Sign = ZERO, Flag = DEFAULT \n
  * @param[in,out] BIGNUM *A  
@@ -58,10 +58,10 @@ void BN_Init_Zero(BIGNUM *A)
 /**
  * @brief Initialize to Random BIGNUM
  * @details
- * - ¸Ş¸ğ¸® ÇÔ¼ö ³»ºÎ¿¡¼­ ÇÒ´ç \n
- * - ·£´ı BIGNUM »ı¼º \n
- * - Num, Length, Sign => ¸ğµÎ ·£´ı \n
- * - ´Ü¼ø TEST¿ë, ³­¼ö¼º º¸Àå X \n
+ * - ë©”ëª¨ë¦¬ í•¨ìˆ˜ ë‚´ë¶€ì—ì„œ í• ë‹¹ \n
+ * - ëœë¤ BIGNUM ìƒì„± \n
+ * - Num, Length, Sign => ëª¨ë‘ ëœë¤ \n
+ * - ë‹¨ìˆœ TESTìš©, ë‚œìˆ˜ì„± ë³´ì¥ X \n
  * @param[in,out] BIGNUM *A 
  * @param UNWORD maxsize (const)
  * @date 2017. 03. 28. v1.00 \n
@@ -70,7 +70,7 @@ void BN_Init_Rand(BIGNUM *A, const UNWORD maxsize)
 {
 	UNWORD rlen;
 		
-	rlen = (rand() % maxsize) + 1; // ±æÀÌ 0 ¾øÀ½
+	rlen = (rand() % maxsize) + 1; // ê¸¸ì´ 0 ì—†ìŒ
 	BN_Init(A, rlen, ZERO, DEFAULT); 
 	BN_Randomize(A);
 
@@ -85,26 +85,26 @@ void BN_Init_Rand(BIGNUM *A, const UNWORD maxsize)
 /**
  * @brief Initialize and Copy BIGNUM *A to *R
  * @details
- * - ¸Ş¸ğ¸® ÇÔ¼ö ³»ºÎ¿¡¼­ ÇÒ´ç \n
- * - BIGNUM »ı¼ºÇØ¼­ (R <- A) COPY \n
+ * - ë©”ëª¨ë¦¬ í•¨ìˆ˜ ë‚´ë¶€ì—ì„œ í• ë‹¹ \n
+ * - BIGNUM ìƒì„±í•´ì„œ (R <- A) COPY \n
  * @param[in,out] BIGNUM *R
  * @param[in] BIGNUM *A
  * @date 2017. 03. 30. v1.00 \n
  */
 void BN_Init_Copy(BIGNUM *R, const BIGNUM *A)
 {
-	// A ¿Í Å©±â °°Àº BIGNUM »ı¼º
+	// A ì™€ í¬ê¸° ê°™ì€ BIGNUM ìƒì„±
 	BN_Init(R, A->Length, A->Sign, A->Flag);
-	// °ª º¹»ç
+	// ê°’ ë³µì‚¬
 	BN_Copy(R, A);
 }
 
 /**
  * @brief Zeroize BIGNUM
  * @details 
- * - BIGNUM °ªÀ» ZERO ·Î º¯°æ \n
- * - flag(Optimize) : ¸Ş¸ğ¸® ÀçÇÒ´ç (Å©±â º¯°æ), Length = 1 \n
- * - flag(Dafault) : °ª¸¸ 0 À¸·Î º¯°æ (Å©±â º¯°æ X) \n 
+ * - BIGNUM ê°’ì„ ZERO ë¡œ ë³€ê²½ \n
+ * - flag(Optimize) : ë©”ëª¨ë¦¬ ì¬í• ë‹¹ (í¬ê¸° ë³€ê²½), Length = 1 \n
+ * - flag(Dafault) : ê°’ë§Œ 0 ìœ¼ë¡œ ë³€ê²½ (í¬ê¸° ë³€ê²½ X) \n 
  * @param[in,out] BIGNUM *A 
 
  * @date 2017. 03. 28. v1.00 \n
@@ -118,7 +118,7 @@ void BN_Zeroize(BIGNUM *A)
 			A->Num[i] = 0;
 	A->Sign = ZERO;			
 
-	// Å©±âµµ ÀçÇÒ´ç
+	// í¬ê¸°ë„ ì¬í• ë‹¹
 	if(A->Flag == OPTIMIZE)
 	{
 		A->Num = (UNWORD *)realloc(A->Num, sizeof(UNWORD));
@@ -129,15 +129,15 @@ void BN_Zeroize(BIGNUM *A)
 /**
  * @brief Randomize BIGNUM
  * @details
- * - ±âÁ¸¿¡ »ı¼ºµÈ BIGNUM ¿¡ ·£´ı °ª ÀÔ·Â \n
- * - Length º¯°æ X \n
- * - ´Ü¼ø TEST¿ë, ³­¼ö¼º º¸Àå X \n
- * - flag(Optimize) : ºÎÈ£ ·£´ı \n
- * - flag(Dafault) : °ª¸¸ ·£´ı À¸·Î º¯°æ (Å©±â º¯°æ X) \n 
+ * - ê¸°ì¡´ì— ìƒì„±ëœ BIGNUM ì— ëœë¤ ê°’ ì…ë ¥ \n
+ * - Length ë³€ê²½ X \n
+ * - ë‹¨ìˆœ TESTìš©, ë‚œìˆ˜ì„± ë³´ì¥ X \n
+ * - flag(Optimize) : ë¶€í˜¸ ëœë¤ \n
+ * - flag(Dafault) : ê°’ë§Œ ëœë¤ ìœ¼ë¡œ ë³€ê²½ (í¬ê¸° ë³€ê²½ X) \n 
  * @param[in,out] BIGNUM *A 
  * @date 2017. 03. 28. v1.00 \n
  * @date 2017. 03. 30. v1.01 (Flag) \n
- * @todo ¼öÁ¤ ¿ä¸Á
+ * @todo ìˆ˜ì • ìš”ë§
  */
 void BN_Randomize(BIGNUM *A)
 {
@@ -152,11 +152,11 @@ void BN_Randomize(BIGNUM *A)
 		}		
 	}
 	
-	// Flag(Optimize) : ºÎÈ£ ·£´ı
+	// Flag(Optimize) : ë¶€í˜¸ ëœë¤
 	if(A->Flag == OPTIMIZE)
 	{
 		if((A->Length == 1) && (A->Num[0] == 0))
-			A->Sign = ZERO; // ¸¸¾à ·£´ı »ı¼º °ªÀÌ 0 ÀÌ¸é Sign = ZERO
+			A->Sign = ZERO; // ë§Œì•½ ëœë¤ ìƒì„± ê°’ì´ 0 ì´ë©´ Sign = ZERO
 		else if(A->Num[0] & 1)
 			A->Sign = MINUS;
 		else
@@ -167,9 +167,9 @@ void BN_Randomize(BIGNUM *A)
 /**
  * @brief Free BIGNUM Memory
  * @details
- * - BIGNUM Num WORD µ¿ÀûÇÒ´ç ÇØÁ¦
- * - 0 ÃÊ±âÈ­ ¾øÀÌ ´Ü¼ø ¸Ş¸ğ¸® ÇÒ´ç ÇØÁ¦
- * - BIGNUM ÀÌ Free µÈ »óÅÂ => Length = 0 , Sign = 0, Flag = 0
+ * - BIGNUM Num WORD ë™ì í• ë‹¹ í•´ì œ
+ * - 0 ì´ˆê¸°í™” ì—†ì´ ë‹¨ìˆœ ë©”ëª¨ë¦¬ í• ë‹¹ í•´ì œ
+ * - BIGNUM ì´ Free ëœ ìƒíƒœ => Length = 0 , Sign = 0, Flag = 0
  * @param[in,out] BIGNUM *A 
  * @date 2017. 03. 28. v1.00 \n
  * @date 2017. 03. 30. v1.01 (Flag) \n
@@ -185,9 +185,9 @@ void BN_Free(BIGNUM *A)
 /**
  * @brief Zero Free BIGNUM Memory
  * @details
- * - BIGNUM Num WORD µ¿ÀûÇÒ´ç ÇØÁ¦
- * - °ªÀ» 0 À¸·Î ÃÊ±âÈ­ ÇÑ ÈÄ ¸Ş¸ğ¸® ÇÒ´ç ÇØÁ¦
- * - BIGNUM ÀÌ Free µÈ »óÅÂ => Length = 0 , Sign = 0, Flag = 0
+ * - BIGNUM Num WORD ë™ì í• ë‹¹ í•´ì œ
+ * - ê°’ì„ 0 ìœ¼ë¡œ ì´ˆê¸°í™” í•œ í›„ ë©”ëª¨ë¦¬ í• ë‹¹ í•´ì œ
+ * - BIGNUM ì´ Free ëœ ìƒíƒœ => Length = 0 , Sign = 0, Flag = 0
  * @param[in,out] BIGNUM *A 
  * @date 2017. 03. 28. v1.00 \n
  * @date 2017. 03. 30. v1.01 (Flag) \n 
@@ -207,9 +207,9 @@ void BN_Zero_Free(BIGNUM *A)
 /**
  * @brief Memory Reallocate BIGNUM *A
  * @details
- * - ÀÔ·Â ¹ŞÀº »çÀÌÁî ÀÌ»óÀÇ °ªÀº 0 ÃÊ±âÈ­
- * - ³ª¸ÓÁö °ªÀº ±âÁ¸ÀÇ °ª À¯Áö
- * - BIGNUM *A ¸Ş¸ğ¸®¸¦ ÀÔ·Â¹ŞÀº Å©±â¿Í µ¿ÀÏÇÏ°Ô ÀçÇÒ´ç
+ * - ì…ë ¥ ë°›ì€ ì‚¬ì´ì¦ˆ ì´ìƒì˜ ê°’ì€ 0 ì´ˆê¸°í™”
+ * - ë‚˜ë¨¸ì§€ ê°’ì€ ê¸°ì¡´ì˜ ê°’ ìœ ì§€
+ * - BIGNUM *A ë©”ëª¨ë¦¬ë¥¼ ì…ë ¥ë°›ì€ í¬ê¸°ì™€ ë™ì¼í•˜ê²Œ ì¬í• ë‹¹
  * @param[out] BIGNUM *A
  * @param[in] UNWORD size (const)
  * @date 2017. 03. 28. v1.00 \n
@@ -219,18 +219,18 @@ void BN_Realloc_Mem(BIGNUM *A, const UNWORD size)
 {	
 	if(A->Length > size)
 	{
-		// ÀÔ·Â¹ŞÀº size Å©±â º¸´Ù Å« °ª 0 À¸·Î ¼¼ÆÃ ÈÄ
+		// ì…ë ¥ë°›ì€ size í¬ê¸° ë³´ë‹¤ í° ê°’ 0 ìœ¼ë¡œ ì„¸íŒ… í›„
 		while(A->Length > size)
 		{
 			A->Num[(A->Length - 1)] = 0;
 			A->Length--;
 		}
-		// ¸Ş¸ğ¸® ÀçÇÒ´ç
+		// ë©”ëª¨ë¦¬ ì¬í• ë‹¹
 		A->Num = (UNWORD *)realloc(A->Num, A->Length * sizeof(UNWORD));
 	}
 	else if(A->Length < size)
 	{
-		// ¸Ş¸ğ¸®¸¸ ÀçÇÒ´ç
+		// ë©”ëª¨ë¦¬ë§Œ ì¬í• ë‹¹
 		A->Num = (UNWORD *)realloc(A->Num, size * sizeof(UNWORD));
 		A->Length = size;
 	}	
@@ -239,43 +239,43 @@ void BN_Realloc_Mem(BIGNUM *A, const UNWORD size)
 /**
  * @brief Zero Data and Memory Reallocate BIGNUM *A
  * @details
- * - ¸ğµç °ªÀ» 0 À¸·Î º¯°æ ÈÄ 
- * - BIGNUM *A ¸Ş¸ğ¸®¸¦ ÀÔ·Â¹ŞÀº Å©±â¿Í µ¿ÀÏÇÏ°Ô ÀçÇÒ´ç
+ * - ëª¨ë“  ê°’ì„ 0 ìœ¼ë¡œ ë³€ê²½ í›„ 
+ * - BIGNUM *A ë©”ëª¨ë¦¬ë¥¼ ì…ë ¥ë°›ì€ í¬ê¸°ì™€ ë™ì¼í•˜ê²Œ ì¬í• ë‹¹
  * @param[out] BIGNUM *A
  * @param[in] UNWORD size (const)
  * @date 2017. 03. 30. v1.00 \n
  */
 void BN_Zero_Realloc_Mem(BIGNUM *A, const UNWORD size)
 {	
-	// ÀÔ·Â ¹ŞÀº Å©±â ¸¸Å­ ¸Ş¸ğ¸® ÀçÇÒ´ç
+	// ì…ë ¥ ë°›ì€ í¬ê¸° ë§Œí¼ ë©”ëª¨ë¦¬ ì¬í• ë‹¹
 	BN_Realloc_Mem(A, size);
-	// ÀçÇÒ´çµÈ ºÎºĞ 0 À¸·Î ÃÊ±âÈ­
+	// ì¬í• ë‹¹ëœ ë¶€ë¶„ 0 ìœ¼ë¡œ ì´ˆê¸°í™”
 	BN_Zeroize(A);	
 }
 
 /**
  * @brief Optimize Output of BIGNUM *A
  * @details
- * - BIGNUM *A °ªÀÇ Å©±â ÃÖÀûÈ­ Ãâ·Â (Memory, Length)
- * - BIGNUM *A °¡ 0 ÀÎ °æ¿ì *A ÀÇ Sign = ZERO
- * - ÃÖ»óÀ§ Num WORD ºÎÅÍ °ªÀÌ 0 ÀÎÁö Ã¼Å©
+ * - BIGNUM *A ê°’ì˜ í¬ê¸° ìµœì í™” ì¶œë ¥ (Memory, Length)
+ * - BIGNUM *A ê°€ 0 ì¸ ê²½ìš° *A ì˜ Sign = ZERO
+ * - ìµœìƒìœ„ Num WORD ë¶€í„° ê°’ì´ 0 ì¸ì§€ ì²´í¬
  * @param[in, out] BIGNUM *A
  * @date 2017. 03. 28. v1.00 \n
  * @date 2017. 04. 04. v1.01 \n
  */
 void BN_Optimize_Out(BIGNUM *A)
 {
-	// Length°¡ 1 ÀÌ»óÀÌ°í, ÃÖ»óÀ§ WORD °ªÀÌ 0 ÀÎ °æ¿ì¸¸ ÀçÇÒ´ç
+	// Lengthê°€ 1 ì´ìƒì´ê³ , ìµœìƒìœ„ WORD ê°’ì´ 0 ì¸ ê²½ìš°ë§Œ ì¬í• ë‹¹
 	if((A->Length > 1) && (A->Num[A->Length - 1] == 0))
 	{
-		//  ÃÖ¼Ò A->Length °ª : 1
+		//  ìµœì†Œ A->Length ê°’ : 1
 		while((A->Length > 1) && (A->Num[A->Length - 1] == 0))
 			A->Length--;
 			
 		A->Num = (UNWORD *)realloc(A->Num, A->Length * sizeof(UNWORD));
 	}
 	
-	// A->Length = 1 , A-Num[0] = 0 ÀÎ °æ¿ì Sign = ZERO º¯°æ
+	// A->Length = 1 , A-Num[0] = 0 ì¸ ê²½ìš° Sign = ZERO ë³€ê²½
 	if((A->Length == 1) && (A->Num[0] == 0))
 		A->Sign = ZERO; 
 }
@@ -283,8 +283,8 @@ void BN_Optimize_Out(BIGNUM *A)
 /**
  * @brief BIGNUM Copy A to R
  * @details
- * - BIGNUM *A °ªÀ» BIGNUM *R ·Î º¹»ç (*A ¿Í µ¿ÀÏ Å©±â *R Ãâ·Â) \n
- * - ³»ºÎ¿¡¼­ BIGNUM *A ¿Í µ¿ÀÏÇÑ Å©±â BIGNUM *R ÀçÇÒ´ç \n
+ * - BIGNUM *A ê°’ì„ BIGNUM *R ë¡œ ë³µì‚¬ (*A ì™€ ë™ì¼ í¬ê¸° *R ì¶œë ¥) \n
+ * - ë‚´ë¶€ì—ì„œ BIGNUM *A ì™€ ë™ì¼í•œ í¬ê¸° BIGNUM *R ì¬í• ë‹¹ \n
  * @param[in,out] BIGNUM *R
  * @param[in] BIGNUM *A (const)
  * @date 2017. 03. 28. v1.00 \n
@@ -293,7 +293,7 @@ void BN_Copy(BIGNUM *R, const BIGNUM *A)
 {
 	SNWORD i;
 		
-	// *R Å©±â¿Í *A °¡ ´Ù¸£¸é µ¿ÀÏÇÑ Å©±âÀÎ 0 ¹è¿­·Î ÀçÇÒ´ç
+	// *R í¬ê¸°ì™€ *A ê°€ ë‹¤ë¥´ë©´ ë™ì¼í•œ í¬ê¸°ì¸ 0 ë°°ì—´ë¡œ ì¬í• ë‹¹
 	if(R->Length != A->Length)
 		BN_Zero_Realloc_Mem(R, A->Length);
 	
@@ -307,10 +307,10 @@ void BN_Copy(BIGNUM *R, const BIGNUM *A)
 /**
  * @brief Absolute Value Compare BIGNUM *A to BIGNUM *B
  * @details
- * - BIGNUM *A °ª°ú BIGNUM *B °ª Àı´ë°ª Å©±â ºñ±³ (Length, WORD Num °ª)\n
- * - BIGNUM *A ±âÁØÀ¸·Î A > B -> return LARGE(1) \n
- * - 1) Length ºñ±³ ÈÄ \n
- * - 2) ÃÖ»óÀ§ Num WORDºÎÅÍ °ª ºñ±³ \n
+ * - BIGNUM *A ê°’ê³¼ BIGNUM *B ê°’ ì ˆëŒ€ê°’ í¬ê¸° ë¹„êµ (Length, WORD Num ê°’)\n
+ * - BIGNUM *A ê¸°ì¤€ìœ¼ë¡œ A > B -> return LARGE(1) \n
+ * - 1) Length ë¹„êµ í›„ \n
+ * - 2) ìµœìƒìœ„ Num WORDë¶€í„° ê°’ ë¹„êµ \n
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
  * @return LARGE(1), EQUAL(0), SMALL(-1)
@@ -320,27 +320,27 @@ SNWORD BN_Abs_Cmp(const BIGNUM *A, const BIGNUM *B)
 {
 	SNWORD i;
 	
-	// 1) A ¿Í B ÀÇ WORD Length(°³¼ö) °°À» ¶§
+	// 1) A ì™€ B ì˜ WORD Length(ê°œìˆ˜) ê°™ì„ ë•Œ
 	if(A->Length == B->Length)
 	{	
-		// ÃÖ»óÀ§ WORD ºÎÅÍ Å©±â ºñ±³
+		// ìµœìƒìœ„ WORD ë¶€í„° í¬ê¸° ë¹„êµ
 		for(i = A->Length - 1 ; i >= 0 ; i--)
-			if(A->Num[i] != B->Num[i]) // A == B ÀÎ °æ¿ì Skip
+			if(A->Num[i] != B->Num[i]) // A == B ì¸ ê²½ìš° Skip
 				return (A->Num[i] > B->Num[i]) ? LARGE : SMALL;
 		
-		// ¸ğµç WORD¿¡ ´ëÇØ¼­ A == B ÀÌ¸é µÎ BIGNUM µ¿ÀÏ
+		// ëª¨ë“  WORDì— ëŒ€í•´ì„œ A == B ì´ë©´ ë‘ BIGNUM ë™ì¼
 		return EQUAL;
 	}
-	else // 2) A ¿Í B ÀÇ WORD Length(°³¼ö) ´Ù¸¦ ¶§
-		return (A->Length > B->Length) ? LARGE : SMALL; // A > B ÀÌ¸é LARGE ¸®ÅÏ
+	else // 2) A ì™€ B ì˜ WORD Length(ê°œìˆ˜) ë‹¤ë¥¼ ë•Œ
+		return (A->Length > B->Length) ? LARGE : SMALL; // A > B ì´ë©´ LARGE ë¦¬í„´
 }
 
 /**
  * @brief Compare BIGNUM *A to BIGNUM *B
  * @details
- * - BIGNUM *A °ª°ú BIGNUM *B °ª Å©±â ºñ±³ (Sign, Length, WORD Num °ª)
- * - BIGNUM *A ±âÁØÀ¸·Î A > B -> return LARGE(1) 
- * - Sign ºñ±³ ÈÄ BN_Abs_Cmp() ºñ±³
+ * - BIGNUM *A ê°’ê³¼ BIGNUM *B ê°’ í¬ê¸° ë¹„êµ (Sign, Length, WORD Num ê°’)
+ * - BIGNUM *A ê¸°ì¤€ìœ¼ë¡œ A > B -> return LARGE(1) 
+ * - Sign ë¹„êµ í›„ BN_Abs_Cmp() ë¹„êµ
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
  * @return LARGE(1), EQUAL(0), SMALL(-1)
@@ -348,14 +348,14 @@ SNWORD BN_Abs_Cmp(const BIGNUM *A, const BIGNUM *B)
  */
 SNWORD BN_Cmp(const BIGNUM *A, const BIGNUM *B)
 {	
-	// A, B Sign ´Ù¸¦ ¶§
+	// A, B Sign ë‹¤ë¥¼ ë•Œ
 	if(A->Sign != B->Sign)
 		return (A->Sign > B->Sign) ? LARGE : SMALL;
-	else // A, B Sign °°À» ¶§ BN_Abs_Cmp() »ç¿ë
+	else // A, B Sign ê°™ì„ ë•Œ BN_Abs_Cmp() ì‚¬ìš©
 	{
 		if(A->Sign == PLUS)
 			return BN_Abs_Cmp(A, B); // |A > B| => (A > B) : retun LARGE(1)
-		else // À½¼öÀÏ ¶§´Â Àı´ë °ª ÀÛÀº ¼ö°¡ ´õ Å­
+		else // ìŒìˆ˜ì¼ ë•ŒëŠ” ì ˆëŒ€ ê°’ ì‘ì€ ìˆ˜ê°€ ë” í¼
 			return BN_Abs_Cmp(B, A); // |A < B| => (-A > -B) : retun LARGE(1)
 	}
 }
@@ -363,13 +363,13 @@ SNWORD BN_Cmp(const BIGNUM *A, const BIGNUM *B)
 /**
  * @brief BIGNUM n-bit Right Shift  
  * @details
- * - BIGNUM *A ¿À¸¥ÂÊÀ¸·Î n ºñÆ® ½ÃÇÁÆ® \n
- * - BN_RShift_Bit(R, R, s_bit) ¿©µµ ¹®Á¦ ¾øÀ½ (ÇÏÀ§ ºÎÅÍ ¼øÂ÷Àû ÀúÀå)\n
+ * - BIGNUM *A ì˜¤ë¥¸ìª½ìœ¼ë¡œ n ë¹„íŠ¸ ì‹œí”„íŠ¸ \n
+ * - BN_RShift_Bit(R, R, s_bit) ì—¬ë„ ë¬¸ì œ ì—†ìŒ (í•˜ìœ„ ë¶€í„° ìˆœì°¨ì  ì €ì¥)\n
  * @param[out] BIGNUM *R 
  * @param[in] BIGNUM *A (const)
  * @param[in] s_bit (const)
  * @date 2017. 03. 29. v1.00 \n
- * @todo test ÇÊ¿ä
+ * @todo test í•„ìš”
  */
 void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 {
@@ -381,10 +381,10 @@ void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 	{
 		for(i = 0 ; i < (A->Length - 1) ; i++)
 			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
-		// ÃÖ»óÀ§ WORD Ã³¸®
+		// ìµœìƒìœ„ WORD ì²˜ë¦¬
 		R->Num[i] = (A->Num[i] >> s_bit);
 	}
-	else // s_bit >= BIT_LEN (¿öµå ÀÌµ¿)
+	else // s_bit >= BIT_LEN (ì›Œë“œ ì´ë™)
 	{
 		for(i = 0 ; (i + tmp_word) < A->Length ; i++)
 			R->Num[i] = A->Num[i + tmp_word];
@@ -394,7 +394,7 @@ void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 				
 		for(i = 0 ; i < ((A->Length - tmp_word) - 1) ; i++)
 			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
-		// ÃÖ»óÀ§ WORD Ã³¸®
+		// ìµœìƒìœ„ WORD ì²˜ë¦¬
 		R->Num[i] = (A->Num[i] >> s_bit);
 	}
 
@@ -406,13 +406,13 @@ void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 /**
  * @brief BIGNUM n-bit Left Shift  
  * @details
- * - BIGNUM *A ¿ŞÂÊÀ¸·Î n ºñÆ® ½ÃÇÁÆ® \n
- * - BN_RShift_Bit(R, R, s_bit) ¿©µµ ¹®Á¦ ¾øÀ½ (ÇÏÀ§ ºÎÅÍ ¼øÂ÷Àû ÀúÀå)\n
+ * - BIGNUM *A ì™¼ìª½ìœ¼ë¡œ n ë¹„íŠ¸ ì‹œí”„íŠ¸ \n
+ * - BN_RShift_Bit(R, R, s_bit) ì—¬ë„ ë¬¸ì œ ì—†ìŒ (í•˜ìœ„ ë¶€í„° ìˆœì°¨ì  ì €ì¥)\n
  * @param[out] BIGNUM *R 
  * @param[in] BIGNUM *A (const)
  * @param[in] s_bit (const)
  * @date 2017. 03. 29. v1.00 \n
- * @todo test ÇÊ¿ä
+ * @todo test í•„ìš”
  */
 void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 {
@@ -427,13 +427,13 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 
 	for(i = BIT_LEN - 1 ; i >= 0 ; i--)
 	{
-		// »óÀ§ WORD ºÎÅÍ 0 ÀÎ bit Ã¼Å©
+		// ìƒìœ„ WORD ë¶€í„° 0 ì¸ bit ì²´í¬
 		if((A->Num[word_len] >> i) == 0)
 			zero_cnt++;
 		else
 			break;
 		
-		// »óÀ§ WORD ºÎÅÍ ÀüÃ¼ WORD °¡ 0 ÀÌ¸é A ±æÀÌ Á¶Á¤ & for ¹® ´Ù½Ã ½ÇÇà
+		// ìƒìœ„ WORD ë¶€í„° ì „ì²´ WORD ê°€ 0 ì´ë©´ A ê¸¸ì´ ì¡°ì • & for ë¬¸ ë‹¤ì‹œ ì‹¤í–‰
 		if((i == 0) && ((A->Num[word_len] >> i) == 0))
 		{
 			word_len--;
@@ -441,7 +441,7 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 		}
 	}
 
-	// zero_cnt >= s_bit ÀÌ¸é ¹è¿­ ´ÜÀ§ º¹»ç °í·ÁÇÒ ÇÊ¿ä X
+	// zero_cnt >= s_bit ì´ë©´ ë°°ì—´ ë‹¨ìœ„ ë³µì‚¬ ê³ ë ¤í•  í•„ìš” X
 	if(zero_cnt < s_bit)
 	{
 		tmp_word = (s_bit - zero_cnt) / BIT_LEN;
@@ -456,7 +456,7 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 				
 		for(i = 0 ; i < ((A->Length - tmp_word) - 1) ; i++)
 			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
-		// ÃÖ»óÀ§ WORD Ã³¸®
+		// ìµœìƒìœ„ WORD ì²˜ë¦¬
 		R->Num[i] = (A->Num[i] >> s_bit);
 	}
 
@@ -471,10 +471,10 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 	{
 		for(i = 0 ; i < (A->Length - 1) ; i++)
 			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
-		// ÃÖ»óÀ§ WORD Ã³¸®
+		// ìµœìƒìœ„ WORD ì²˜ë¦¬
 		R->Num[i] = (A->Num[i] >> s_bit);
 	}
-	else // s_bit >= BIT_LEN (¿öµå ÀÌµ¿)
+	else // s_bit >= BIT_LEN (ì›Œë“œ ì´ë™)
 	{
 		tmp_word = s_bit / BIT_LEN;
 		tmp_bit = s_bit % BIT_LEN;
@@ -487,7 +487,7 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 				
 		for(i = 0 ; i < ((A->Length - tmp_word) - 1) ; i++)
 			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
-		// ÃÖ»óÀ§ WORD Ã³¸®
+		// ìµœìƒìœ„ WORD ì²˜ë¦¬
 		R->Num[i] = (A->Num[i] >> s_bit);
 	}
 
@@ -501,13 +501,13 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
  * @brief BIGNUM Binary GCD algorithm 
  * @details
  * - BIGNUM *a, *b : Positive Integer
- * - BIGNUM *a ¿Í *b ÀÇ ÃÖ´ë°ø¾à¼ö BIGNUM *R °è»ê
- * - Guide to ECC p.41 Âü°í
+ * - BIGNUM *a ì™€ *b ì˜ ìµœëŒ€ê³µì•½ìˆ˜ BIGNUM *R ê³„ì‚°
+ * - Guide to ECC p.41 ì°¸ê³ 
  * @param[in] BIGNUM *a (const)
  * @param[in] BIGNUM *b (const)
  * @param[out] BIGNUM *R 
  * @date 2017. 03. 28. v1.00 \n
- * @todo ¾ÆÁ÷ ¹Ì¿Ï¼º
+ * @todo ì•„ì§ ë¯¸ì™„ì„±
  */
 void BN_Bin_GCD(BIGNUM *R, const BIGNUM *a, const BIGNUM *b)
 {	
@@ -519,7 +519,7 @@ void BN_Bin_GCD(BIGNUM *R, const BIGNUM *a, const BIGNUM *b)
 	BN_Init(&e, 1, PLUS, DEFAULT);
 	e.Num[0] = 1;
 	
-	while(((u.Num[0] & 1) == 0) && ((v.Num[0] & 1) == 0)) // u[0] and v[0] °¡ Â¦¼öÀÌ¸é ¹İº¹
+	while(((u.Num[0] & 1) == 0) && ((v.Num[0] & 1) == 0)) // u[0] and v[0] ê°€ ì§ìˆ˜ì´ë©´ ë°˜ë³µ
 	{
 		BN_RShift_Bit(&u, &u, 1); // u <- u/2
 		BN_RShift_Bit(&v, &v, 1); // v <- v/2
@@ -548,21 +548,21 @@ void BN_Bin_GCD(BIGNUM *R, const BIGNUM *a, const BIGNUM *b)
  * @details
  * - BIGNUM *x, *y : Positive Integer
  * - BIGNUM *v = gcd(x, y), BIGNUM *a and *b s.t. ax + by = gcd(x, y) 
- * - Handbook of Applied Cryptography p.608 Âü°í
+ * - Handbook of Applied Cryptography p.608 ì°¸ê³ 
  * @param[out] BIGNUM *v \n
  * @param[out] BIGNUM *a \n
  * @param[out] BIGNUM *b \n
  * @param[in] BIGNUM *x (const)
  * @param[in] BIGNUM *y (const)
  * @date 2017. 03. 28. v1.00 \n
- * @todo ¾ÆÁ÷ ¹Ì¿Ï¼º
+ * @todo ì•„ì§ ë¯¸ì™„ì„±
  */
 void BN_Ex_Bin_GCD(BIGNUM *v, BIGNUM *a, BIGNUM *b, const BIGNUM *x, const BIGNUM *y)
 {	
 	/*
 	BIGNUM a;
 
-	while(((a[0] & 1) == 0) && ((b[0] & 1) == 0)) // a[0] and b[0] °¡ Â¦¼öÀÌ¸é ¹İº¹
+	while(((a[0] & 1) == 0) && ((b[0] & 1) == 0)) // a[0] and b[0] ê°€ ì§ìˆ˜ì´ë©´ ë°˜ë³µ
 	{
 		BN_RShift_Bit(&u, &u, 1); // u <- u/2
 		BN_RShift_Bit(&v, &v, 1); // v <- v/2
