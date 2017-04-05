@@ -1,3 +1,9 @@
-한글 테스트
+#if 0
 
-	한글 테스트 2 
+SNWORD main ()
+{
+	
+	return 0;	
+}
+
+#endif

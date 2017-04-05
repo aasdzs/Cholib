@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file bn_operation.c
  * @brief BIGNUM 이용한 연산
  * @details 
@@ -8,7 +8,7 @@
  * - Modular
  * - inversion
  * 자세한 설명
- * @date 2017. 03 ~ 07.
+ * @date 2017. 03. ~ 
  * @author YoungJin CHO
  * @version 1.00
  */

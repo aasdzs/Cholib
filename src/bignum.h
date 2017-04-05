@@ -1,4 +1,4 @@
-﻿#ifndef _BIGNUM_H_
+#ifndef _BIGNUM_H_
 #define _BIGNUM_H_
 
 #include "config.h"
@@ -28,6 +28,7 @@ void BN_Copy(BIGNUM *R, const BIGNUM *A);
 SNWORD BN_Abs_Cmp(const BIGNUM *A, const BIGNUM *B);
 SNWORD BN_Cmp(const BIGNUM *A, const BIGNUM *B);
 void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit);
+void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit);
 
 
 //void BN_Bin_GCD(BIGNUM *R, const BIGNUM *A, const BIGNUM *B);

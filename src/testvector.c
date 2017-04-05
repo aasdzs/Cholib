@@ -1,4 +1,4 @@
-﻿#include "config.h"
+#include "config.h"
 #include "bignum.h"
 #include "bn_operation.h"
 #include "wd_operation.h"

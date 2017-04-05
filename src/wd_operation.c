@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file wd_operation.c
  * @brief WORD 단위 연산
  * @details 

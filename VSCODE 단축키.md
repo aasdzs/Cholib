@@ -1,0 +1,46 @@
+## VS Code 단축키 정리 
+- ***f5*** : 디버그 시작/정지
+- ***shift + f5*** :  디버그 중지
+- ***f9*** : breakpoint on/off
+- ***f10*** : 디버그 현재 라인 실행
+- ***f11*** : 디버그 함수의 경우 함수 내부로 들어가서 실행
+- ***f12*** : 함수 정의 가기
+- ***shift + f12*** : 현재 함수를 참조하는 부분 보기
+- ***alt + shift + f*** : 포맷팅
+- ***alt + shift + i*** : 선택된 영역에서 각 라인의 끝에 커서 insert
+- ***ctrl + `*** : 통합 터미널 열기
+- ***ctrl + n*** : 새문서 열기
+- ***ctrl + s*** : 현재 문서 저장
+- ***ctrl + p*** : 빠른 파일 열기
+- ***ctrl + d*** : 선택(selection) 하며 찾기
+- ***ctrl + f2*** : 현재 파일에서 전체 선택(selection)
+- ***ctrl + f*** : 찾기
+- ***ctrl + f , 단어입력, alt + enter*** : 해당 단어 전체 선택(selection)
+- ***ctrl + shift + f*** : 프로젝트 전체에서 찾기
+- ***ctrl + shift + p*** : 명령어 보기
+- ***ctrl + f, alt + enter*** : 찾고나서 전체 선택하기
+- ***ctrl + g  or f3*** : 다음 찾기
+- ***ctrl + shift + g  or shift + f3*** : 이전 찾기
+- ***ctrl + [*** : 들여쓰기(indent line)
+- ***ctrl + ]*** : 내어쓰기(outdent line)
+- ***ctrl + shift + [*** : 현재 부분 접기(collapse)
+- ***ctrl + shift + ]*** : 현재 부분 펴기(uncollapse)
+- ***ctrl + -*** : 축소(zoom out)
+- ***ctrl + =*** : 확대(zoom in)
+- ***ctrl + w*** : 현재 편집창 닫기
+- ***ctrl + left or home*** : 현재 라인 앞으로 가기
+- ***ctrl + right or end*** : 현재 라인 끝으로 가기
+- ***ctrl + home*** : 파일 시작으로 가기
+- ***ctrl + end*** : 파일 끝으로 가기
+- ***ctrl + b*** : 사이드바 보기/닫기
+- ***ctrl + k , ctrl + c*** : 주석 처리
+- ***ctrl + k,  ctrl + u*** : 주석 해제
+- ***ctrl + /*** : 주석 처리 / 해제
+- ***ctrl + \\*** : 편집창 나누기
+- ***ctrl + z*** : 실행 취소
+- ***ctrl + shift + z*** : 다시 실행
+- ***ctrl + alt + shift + up*** : 위방향으로 컬럼 선택
+- ***ctrl + alt + shift + down*** : 아래방향 컬럼 선택
+- ***ctrl + g*** : 라인 가기(go to line)
+- ***ctrl + -*** : 뒤로 가기(go back)
+- ***ctrl + shift + -*** : 앞으로 가기(go forward)

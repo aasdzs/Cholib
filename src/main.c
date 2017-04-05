@@ -1,9 +1,13 @@
-﻿
+
 #include "config.h"
+
+#if 1
 
 SNINT main ()
 {
 	
 
-	return SUCCESS;
+	return 0;
 }
+
+#endif

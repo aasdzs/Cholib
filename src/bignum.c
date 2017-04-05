@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file bignum.c
  * @brief 
  * @details 
@@ -16,6 +16,8 @@
 
 #include "config.h"
 #include "bignum.h"
+#include "bn_operation.h"
+#include "wd_operation.h"
 
 /**
  * @brief Initialize to BIGNUM
@@ -433,7 +435,7 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 		else
 			break;
 		
-		// 상위 WORD 부터 전체 WORD 가 0 이면 A 길이 조정 & for 문 다시 실행
+		// 상위 한 WORD 전체가 0 이면 A 길이 조정 & for 문 다시 실행
 		if((i == 0) && ((A->Num[word_len] >> i) == 0))
 		{
 			word_len--;
@@ -455,41 +457,11 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 			R->Num[i] = 0;
 				
 		for(i = 0 ; i < ((A->Length - tmp_word) - 1) ; i++)
-			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
+			R->Num[i] = (A->Num[i] << s_bit) ^ (A->Num[i - 1] >> (BIT_LEN - s_bit));
 		// 최상위 WORD 처리
-		R->Num[i] = (A->Num[i] >> s_bit);
+		R->Num[i] = (A->Num[i] << s_bit);
 	}
 
-
-
-
-
-
-
-
-	if(s_bit < BIT_LEN)	
-	{
-		for(i = 0 ; i < (A->Length - 1) ; i++)
-			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
-		// 최상위 WORD 처리
-		R->Num[i] = (A->Num[i] >> s_bit);
-	}
-	else // s_bit >= BIT_LEN (워드 이동)
-	{
-		tmp_word = s_bit / BIT_LEN;
-		tmp_bit = s_bit % BIT_LEN;
-
-		for(i = 0 ; i < (A->Length - tmp_word) ; i++)
-			R->Num[i] = R->Num[i + tmp_word];
-		
-		for( ; i < (A->Length - 1) ; i++)
-			R->Num[i] = 0;
-				
-		for(i = 0 ; i < ((A->Length - tmp_word) - 1) ; i++)
-			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
-		// 최상위 WORD 처리
-		R->Num[i] = (A->Num[i] >> s_bit);
-	}
 
 	if(A->Flag == OPTIMIZE)
 		BN_Optimize_Out(R);
@@ -521,22 +493,24 @@ void BN_Bin_GCD(BIGNUM *R, const BIGNUM *a, const BIGNUM *b)
 	
 	while(((u.Num[0] & 1) == 0) && ((v.Num[0] & 1) == 0)) // u[0] and v[0] 가 짝수이면 반복
 	{
-		BN_RShift_Bit(&u, &u, 1); // u <- u/2
-		BN_RShift_Bit(&v, &v, 1); // v <- v/2
-		e <<= 1;				  // e <- 2e
+		BN_RShift_Bit(&u, &u, 1);	// u <- (u / 2)
+		BN_RShift_Bit(&v, &v, 1);	// v <- (v / 2)
+		BN_LShift_Bit(&e, &e, 1);	// e <- (2 * e)
 	}
 
-	while(u != 0)
+	while((u.Num[0] != 0) && (v.Length == 1)) // (u != 0)
 	{
-		while((u[0] & 1) == 0)
+		while((u.Num[0] & 1) == 0)
 			BN_RShift_Bit(&u, &u, 1); // u <- u/2		
-		while((v[0] & 1) == 0)		
+		while((v.Num[0] & 1) == 0)		
 			BN_RShift_Bit(&v, &v, 1); // v <- v/2	
 		
 		if(BN_Cmp(&u, &v))
 			BN_Sub(&u, &u, &v);
 		else
 			BN_Sub(&v, &v, &u);
+
+		BN_Optimize_Out(&u);
 	}
 
 	BN_UNWORD_Mul(R, v, e);

@@ -1,4 +1,4 @@
-﻿#include "benchmark.h"
+#include "benchmark.h"
 #include "config.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ void Benchmark_Test()
 		{
 			t0 = HiResTime();
 			
-			Benchmark_Target();
+			Benchmark_Target(); // 측정 하는 대상
 			
 			t1 = HiResTime();
 
