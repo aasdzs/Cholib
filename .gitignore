@@ -303,3 +303,6 @@ __pycache__/
 *.xsd.cs
 
 # End of https://www.gitignore.io/api/notepadpp,visualstudio,visualstudiocode
+*.sln
+Cholib/Cholib.vcxproj
+*.filters

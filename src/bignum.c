@@ -6,8 +6,10 @@
  * - Zeroize
  * - Randomize
  * - Free
+ * - Reaalocation
  * - Compare
- * @date 2017. 03. 30.
+ * - Copy
+ * @date 2017. 04. 04.
  * @author YoungJin CHO
  * @version 1.01
  */
@@ -58,7 +60,7 @@ void BN_Init_Zero(BIGNUM *A)
  * @details
  * - 메모리 함수 내부에서 할당 \n
  * - 랜덤 BIGNUM 생성 \n
- * - Num, Length, Sign => 랜덤 \n
+ * - Num, Length, Sign => 모두 랜덤 \n
  * - 단순 TEST용, 난수성 보장 X \n
  * @param[in,out] BIGNUM *A 
  * @param UNWORD maxsize (const)
@@ -68,7 +70,7 @@ void BN_Init_Rand(BIGNUM *A, const UNWORD maxsize)
 {
 	UNWORD rlen;
 		
-	rlen = (rand() % maxsize) + 1; 
+	rlen = (rand() % maxsize) + 1; // 길이 0 없음
 	BN_Init(A, rlen, ZERO, DEFAULT); 
 	BN_Randomize(A);
 
@@ -124,13 +126,14 @@ void BN_Zeroize(BIGNUM *A)
 	}
 }
 
-
 /**
  * @brief Randomize BIGNUM
  * @details
  * - 기존에 생성된 BIGNUM 에 랜덤 값 입력 \n
  * - Length 변경 X \n
  * - 단순 TEST용, 난수성 보장 X \n
+ * - flag(Optimize) : 부호 랜덤 \n
+ * - flag(Dafault) : 값만 랜덤 으로 변경 (크기 변경 X) \n 
  * @param[in,out] BIGNUM *A 
  * @date 2017. 03. 28. v1.00 \n
  * @date 2017. 03. 30. v1.01 (Flag) \n
@@ -197,7 +200,6 @@ void BN_Zero_Free(BIGNUM *A)
 		A->Length--;
 	}
 	free(A->Num);
-	A->Length = ZERO;
 	A->Sign = ZERO;
 	A->Flag = DEFAULT;
 }
@@ -224,8 +226,7 @@ void BN_Realloc_Mem(BIGNUM *A, const UNWORD size)
 			A->Length--;
 		}
 		// 메모리 재할당
-		A->Num = (UNWORD *)realloc(A->Num, size * sizeof(UNWORD));
-		A->Length = size;
+		A->Num = (UNWORD *)realloc(A->Num, A->Length * sizeof(UNWORD));
 	}
 	else if(A->Length < size)
 	{
@@ -303,15 +304,13 @@ void BN_Copy(BIGNUM *R, const BIGNUM *A)
 		R->Num[i] = A->Num[i];
 }
 
-
-//////////// 위에 까지 수정 완료
-
 /**
  * @brief Absolute Value Compare BIGNUM *A to BIGNUM *B
  * @details
- * - BIGNUM *A 값과 BIGNUM *B 값 절대값 크기 비교 (Length, WORD Num 값)
- * - BIGNUM *A 기준으로 A > B -> return LARGE(1) 
- * - 1) Length 비교 후 2) 최상위 Num WORD부터 값 비교
+ * - BIGNUM *A 값과 BIGNUM *B 값 절대값 크기 비교 (Length, WORD Num 값)\n
+ * - BIGNUM *A 기준으로 A > B -> return LARGE(1) \n
+ * - 1) Length 비교 후 \n
+ * - 2) 최상위 Num WORD부터 값 비교 \n
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
  * @return LARGE(1), EQUAL(0), SMALL(-1)
@@ -365,24 +364,136 @@ SNWORD BN_Cmp(const BIGNUM *A, const BIGNUM *B)
  * @brief BIGNUM n-bit Right Shift  
  * @details
  * - BIGNUM *A 오른쪽으로 n 비트 시프트 \n
- * - BN_RShift_Bit(R, R, s_bit) 문제 없음 (하위 부터 순차적 저장)\n
+ * - BN_RShift_Bit(R, R, s_bit) 여도 문제 없음 (하위 부터 순차적 저장)\n
  * @param[out] BIGNUM *R 
  * @param[in] BIGNUM *A (const)
  * @param[in] s_bit (const)
  * @date 2017. 03. 29. v1.00 \n
- * @todo BIT_LEN 이상 Shift 문제 처리 / 최적화 문제 
+ * @todo test 필요
  */
 void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 {
-	SNWORD i;
+	UNWORD i;
+	UNWORD tmp_word = s_bit / BIT_LEN;
+	UNWORD tmp_bit = s_bit % BIT_LEN;
 
-	for(i = 0 ; i < (A->Length - 1) ; i++)
-		R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
+	if(s_bit < BIT_LEN)	
+	{
+		for(i = 0 ; i < (A->Length - 1) ; i++)
+			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
+		// 최상위 WORD 처리
+		R->Num[i] = (A->Num[i] >> s_bit);
+	}
+	else // s_bit >= BIT_LEN (워드 이동)
+	{
+		for(i = 0 ; (i + tmp_word) < A->Length ; i++)
+			R->Num[i] = A->Num[i + tmp_word];
+		
+		for( ; i < (A->Length - 1) ; i++)
+			R->Num[i] = 0;
+				
+		for(i = 0 ; i < ((A->Length - tmp_word) - 1) ; i++)
+			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
+		// 최상위 WORD 처리
+		R->Num[i] = (A->Num[i] >> s_bit);
+	}
+
+	if(A->Flag == OPTIMIZE)
+		BN_Optimize_Out(R);
 	
-	// 최상위 WORD 처리
-	R->Num[i] = (A->Num[i] >> s_bit);
+}
 
-	// todo 최적화 문제
+/**
+ * @brief BIGNUM n-bit Left Shift  
+ * @details
+ * - BIGNUM *A 왼쪽으로 n 비트 시프트 \n
+ * - BN_RShift_Bit(R, R, s_bit) 여도 문제 없음 (하위 부터 순차적 저장)\n
+ * @param[out] BIGNUM *R 
+ * @param[in] BIGNUM *A (const)
+ * @param[in] s_bit (const)
+ * @date 2017. 03. 29. v1.00 \n
+ * @todo test 필요
+ */
+void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
+{
+	SNWORD i;
+	//UNWORD bit_cnt;
+	
+	
+	UNWORD tmp_word;
+	UNWORD tmp_bit;
+	UNWORD word_len = A->Length - 1;
+	UNWORD zero_cnt = 0;
+
+	for(i = BIT_LEN - 1 ; i >= 0 ; i--)
+	{
+		// 상위 WORD 부터 0 인 bit 체크
+		if((A->Num[word_len] >> i) == 0)
+			zero_cnt++;
+		else
+			break;
+		
+		// 상위 WORD 부터 전체 WORD 가 0 이면 A 길이 조정 & for 문 다시 실행
+		if((i == 0) && ((A->Num[word_len] >> i) == 0))
+		{
+			word_len--;
+			i = (BIT_LEN - 1);
+		}
+	}
+
+	// zero_cnt >= s_bit 이면 배열 단위 복사 고려할 필요 X
+	if(zero_cnt < s_bit)
+	{
+		tmp_word = (s_bit - zero_cnt) / BIT_LEN;
+		tmp_bit = (s_bit - zero_cnt) % BIT_LEN;
+		BN_Realloc_Mem(&A, (A->Length + tmp_word));
+		
+		for(i = (A->Length - 1) ; (i - tmp_word) >= 0 ; i--)
+			R->Num[i] = A->Num[i - tmp_word];
+		
+		for( ; i < (A->Length - 1) ; i++)
+			R->Num[i] = 0;
+				
+		for(i = 0 ; i < ((A->Length - tmp_word) - 1) ; i++)
+			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
+		// 최상위 WORD 처리
+		R->Num[i] = (A->Num[i] >> s_bit);
+	}
+
+
+
+
+
+
+
+
+	if(s_bit < BIT_LEN)	
+	{
+		for(i = 0 ; i < (A->Length - 1) ; i++)
+			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
+		// 최상위 WORD 처리
+		R->Num[i] = (A->Num[i] >> s_bit);
+	}
+	else // s_bit >= BIT_LEN (워드 이동)
+	{
+		tmp_word = s_bit / BIT_LEN;
+		tmp_bit = s_bit % BIT_LEN;
+
+		for(i = 0 ; i < (A->Length - tmp_word) ; i++)
+			R->Num[i] = R->Num[i + tmp_word];
+		
+		for( ; i < (A->Length - 1) ; i++)
+			R->Num[i] = 0;
+				
+		for(i = 0 ; i < ((A->Length - tmp_word) - 1) ; i++)
+			R->Num[i] = (A->Num[i + 1] << (BIT_LEN - s_bit)) ^ (A->Num[i] >> s_bit);
+		// 최상위 WORD 처리
+		R->Num[i] = (A->Num[i] >> s_bit);
+	}
+
+	if(A->Flag == OPTIMIZE)
+		BN_Optimize_Out(R);
+	
 }
 
 
@@ -400,16 +511,15 @@ void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
  */
 void BN_Bin_GCD(BIGNUM *R, const BIGNUM *a, const BIGNUM *b)
 {	
-	/*
+
+	BIGNUM u, v, e;
+
+	BN_Init_Copy(&u, a);
+	BN_Init_Copy(&v, b);
+	BN_Init(&e, 1, PLUS, DEFAULT);
+	e.Num[0] = 1;
 	
-	BIGNUM u, v, 
-
-
-	BIGNUM u = A;
-	BIGNUM v = B;
-	BIGNUM e = 1;
-
-	while(((u[0] & 1) == 0) && ((v[0] & 1) == 0)) // u[0] and v[0] 가 짝수이면 반복
+	while(((u.Num[0] & 1) == 0) && ((v.Num[0] & 1) == 0)) // u[0] and v[0] 가 짝수이면 반복
 	{
 		BN_RShift_Bit(&u, &u, 1); // u <- u/2
 		BN_RShift_Bit(&v, &v, 1); // v <- v/2
@@ -430,7 +540,7 @@ void BN_Bin_GCD(BIGNUM *R, const BIGNUM *a, const BIGNUM *b)
 	}
 
 	BN_UNWORD_Mul(R, v, e);
-	*/
+	
 }
 
 /**

@@ -7,9 +7,9 @@
 typedef struct _BIGNUM
 {
     UNWORD	*Num;
-	UNWORD	Length = ZERO;
-	SNWORD	Sign = ZERO;
-	SNWORD	Flag = DEFAULT; // Optimization Option (default = 0)
+	UNWORD	Length;
+	SNWORD	Sign; 
+	SNWORD	Flag; // Optimization Option (default = 0)
 }BIGNUM;
 
 // Define Function 
@@ -25,11 +25,11 @@ void BN_Realloc_Mem(BIGNUM *A, const UNWORD size);
 void BN_Zero_Realloc_Mem(BIGNUM *A, const UNWORD size);
 void BN_Optimize_Out(BIGNUM *A);
 void BN_Copy(BIGNUM *R, const BIGNUM *A);
-
-// 수정 완료
-
 SNWORD BN_Abs_Cmp(const BIGNUM *A, const BIGNUM *B);
 SNWORD BN_Cmp(const BIGNUM *A, const BIGNUM *B);
+void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit);
+
+
 //void BN_Bin_GCD(BIGNUM *R, const BIGNUM *A, const BIGNUM *B);
 //void BN_Ex_Bin_GCD(BIGNUM *U, BIGNUM *V, BIGNUM *D, const BIGNUM *X, const BIGNUM *N);
 
