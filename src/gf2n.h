@@ -1,5 +1,5 @@
-#ifndef _GALOISFIELD_H_
-#define _GALOISFIELD_H_
+#ifndef _GF2N_H_
+#define _GF2N_H_
 
 #include "config.h"
 

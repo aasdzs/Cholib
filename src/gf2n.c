@@ -15,7 +15,7 @@
  */
 
 #include "config.h"
-#include "galoisfield.h"
+#include "gf2n.h"
 
 /**
  * @brief Initialize to GF(2^n)

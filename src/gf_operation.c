@@ -13,7 +13,7 @@
  */
 
 #include "config.h"
-#include "galoisfield.h"
+#include "gf2n.h"
 #include "gf_operation.h"
 
 
