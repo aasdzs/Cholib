@@ -18,6 +18,19 @@
 #include "wd_operation.h"
 
 /**
+ * @brief Search for MSB (Most Significant Bit)
+ * @details
+ * - UNWORD a 에서 최상위 비트 위치 r 리턴 ()
+ * @param[in] UNWORD *a
+ * @return UNWORD msb
+ * @date 2017. 03. 28. v1.00 \n
+ */
+UNWORD UNWORD_MSB(const UNWORD a)
+{	
+	UNWORD msb;
+}
+
+/**
  * @brief Multiply UNWORD A from UNWORD B
  * @details
  * - UNWORD A 에서 UNWORD B 를 곱해서 UNWORD *R 출력 (최대 2 WORD 크기)

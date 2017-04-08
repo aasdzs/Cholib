@@ -501,7 +501,7 @@ void BN_Sqr(BIGNUM *R, const BIGNUM *A)
 }
 
 /**
- * @brief Barret Reduction of BIGNUM
+ * @brief Barret Reduction of BIGNUM (Modulus)
  * @details
  * - 
  * - Guide to ECC p.36 참고 \n
@@ -578,7 +578,7 @@ void BN_Bar_Redc(BIGNUM *R, const BIGNUM *Z, const BIGNUM *P, const BIGNUM *MU)
 }
 
 /**
- * @brief Montgomery Reduction of BIGNUM
+ * @brief Montgomery Reduction of BIGNUM (Modulus)
  * @details
  * - 
  * - Handbook of E&HC p.181 참고 \n

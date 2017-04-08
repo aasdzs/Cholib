@@ -7,6 +7,8 @@
 
 // Define Function 
 
+void GF2N_Redc(GF2N *R, const GF2N *A, const GF2N *IRR);
+
 
 #else
 #endif

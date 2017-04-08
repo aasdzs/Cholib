@@ -9,6 +9,9 @@
 - 2017년 3월  ~ 진행 중
 - 언제 끝날지 미정..
 
+### 기타
+- Testvector 는 [Online SageMath](https://cloud.sagemath.com) 를 통해 검증
+
 ### 참고문서
 - Guide to Elliptic Curve Cryptography
 - Handbook of Applied Cryptography
