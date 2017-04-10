@@ -64,7 +64,7 @@ void GF2N_Init_Zero(GF2N *A)
 void GF2N_Init_Copy(GF2N *R, const GF2N *A)
 {
 	// A 와 크기 같은 BIGNUM 생성
-	GF2N_Init(R, A->Length, A->Sign, A->Flag);
+	GF2N_Init(R, A->Length, A->Flag);
 	// 값 복사
 	GF2N_Copy(R, A);
 }
@@ -300,7 +300,7 @@ void GF2N_RShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit)
 	}
 
 	if(A->Flag == OPTIMIZE)
-		BN_Optimize_Out(R);
+		GF2N_Optimize_Out(R);
 	
 }
 
@@ -316,7 +316,7 @@ void GF2N_RShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit)
  * @date 2017. 04. 07. v1.00 \n
  * @todo test 필요
  */
-void GF2N_LShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit)
+void GF2N_LShift_Bit(GF2N *R, GF2N *A, const UNWORD s_bit)
 {
 	SNWORD i;
 	//UNWORD bit_cnt;
@@ -347,7 +347,7 @@ void GF2N_LShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit)
 	{
 		tmp_word = (s_bit - zero_cnt) / BIT_LEN;
 		tmp_bit = (s_bit - zero_cnt) % BIT_LEN;
-		BN_Realloc_Mem(&A, (A->Length + tmp_word));
+		GF2N_Realloc_Mem(A, (A->Length + tmp_word));
 		
 		for(i = (A->Length - 1) ; (i - tmp_word) >= 0 ; i--)
 			R->Num[i] = A->Num[i - tmp_word];
@@ -362,6 +362,6 @@ void GF2N_LShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit)
 	}
 
 	if(A->Flag == OPTIMIZE)
-		BN_Optimize_Out(R);
+		GF2N_Optimize_Out(R);
 	
 }

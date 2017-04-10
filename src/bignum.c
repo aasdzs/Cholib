@@ -58,6 +58,24 @@ void BN_Init_Zero(BIGNUM *A)
 }
 
 /**
+ * @brief Initialize to Zero BIGNUM
+ * @details
+ * - 메모리 함수 내부에서 할당 \n
+ * - 값이 1인 BIGNUM 생성 \n
+ * - Length = 1, Sign = PLUS, Flag = DEFAULT \n
+ * @param[in,out] BIGNUM *A  
+ * @date 2017. 04. 08. v1.00 \n
+ */
+void BN_Init_One(BIGNUM *A)
+{	
+    A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
+	A->Num[0] = 1;
+	A->Length = 1; 
+	A->Sign = PLUS;
+	A->Flag = DEFAULT;
+}
+
+/**
  * @brief Initialize to Random BIGNUM
  * @details
  * - 메모리 함수 내부에서 할당 \n
@@ -416,11 +434,10 @@ void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
  * @date 2017. 03. 29. v1.00 \n
  * @todo test 필요
  */
-void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
+void BN_LShift_Bit(BIGNUM *R, BIGNUM *A, const UNWORD s_bit)
 {
 	SNWORD i;
 	//UNWORD bit_cnt;
-	
 	
 	UNWORD tmp_word;
 	UNWORD tmp_bit;
@@ -448,7 +465,7 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 	{
 		tmp_word = (s_bit - zero_cnt) / BIT_LEN;
 		tmp_bit = (s_bit - zero_cnt) % BIT_LEN;
-		BN_Realloc_Mem(&A, (A->Length + tmp_word));
+		BN_Realloc_Mem(A, (A->Length + tmp_word));
 		
 		for(i = (A->Length - 1) ; (i - tmp_word) >= 0 ; i--)
 			R->Num[i] = A->Num[i - tmp_word];
@@ -461,7 +478,6 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 		// 최상위 WORD 처리
 		R->Num[i] = (A->Num[i] << s_bit);
 	}
-
 
 	if(A->Flag == OPTIMIZE)
 		BN_Optimize_Out(R);
@@ -479,11 +495,11 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
  * @param[in] BIGNUM *b (const)
  * @param[out] BIGNUM *R 
  * @date 2017. 03. 28. v1.00 \n
- * @todo 아직 미완성
+ * @todo 검증 X
  */
 void BN_Bin_GCD(BIGNUM *R, const BIGNUM *a, const BIGNUM *b)
 {	
-
+	/*
 	BIGNUM u, v, e;
 
 	BN_Init_Copy(&u, a);
@@ -513,8 +529,13 @@ void BN_Bin_GCD(BIGNUM *R, const BIGNUM *a, const BIGNUM *b)
 		BN_Optimize_Out(&u);
 	}
 
-	BN_UNWORD_Mul(R, v, e);
 	
+	BN_UNWORD_Mul(R, v, e);
+
+	BN_Zero_Free(&u);
+	BN_Zero_Free(&v);
+	BN_Zero_Free(&e);
+	*/
 }
 
 /**
@@ -531,18 +552,136 @@ void BN_Bin_GCD(BIGNUM *R, const BIGNUM *a, const BIGNUM *b)
  * @date 2017. 03. 28. v1.00 \n
  * @todo 아직 미완성
  */
-void BN_Ex_Bin_GCD(BIGNUM *v, BIGNUM *a, BIGNUM *b, const BIGNUM *x, const BIGNUM *y)
+void BN_Ext_Bin_GCD(BIGNUM *v, BIGNUM *a, BIGNUM *b, const BIGNUM *x, const BIGNUM *y)
 {	
 	/*
-	BIGNUM a;
+	BIGNUM g, u, v;
+	BIGNUM A, B, C, D;
 
-	while(((a[0] & 1) == 0) && ((b[0] & 1) == 0)) // a[0] and b[0] 가 짝수이면 반복
+	BN_Init(&g, )
+
+	// while x and y are both even
+	while(((x->Num[0] & 1) == 0) && ((y->Num[0] & 1) == 0))
 	{
-		BN_RShift_Bit(&u, &u, 1); // u <- u/2
-		BN_RShift_Bit(&v, &v, 1); // v <- v/2
-		e <<= 1;				  // e <- 2e
+		BN_RShift_Bit(x, x, 1);
+		BN_RShift_Bit(y, y, 1);
+		BN_LShift_Bit(g, g, 1);	
+	}
+	BN_Init_Copy(&u, x);
+	BN_Init_Copy(&v, y);
+	BN_Init_One(&A);
+	BN_Init_Zero(&B);
+	BN_Init_Zero(&C);
+	BN_Init_One(&D);
+
+	while((u.Num[0] & 1) == 0)
+	{
+		BN_RShift_Bit(&u, &u, 1);
+		if()
 	}
 
+	while((v.Num[0] & 1) == 0)
+	{
+		BN_RShift_Bit(&v, &v, 1);
+		if()
+	}
+	
+	// if u < v
+	if(BN_Abs_Cmp(&u, &v) == SMALL)
+	{
+		BN_Abs_Sub(&v, &v, &u);
+		BN_Abs_Sub(&C, &C, &A);
+		BN_Abs_Sub(&D, &D, &B);
+	}
+	else // if u >= v
+	{
+		BN_Abs_Sub(&u, &u, &v);
+		BN_Abs_Sub(&A, &A, &C);
+		BN_Abs_Sub(&B, &B, &D);		
+	}
+
+	if((u.Length == 0) &&(u.Num[0] == 0))
+	{
+		BN_Copy(a, &C);
+		BN_Copy(b, &D);
+	}
+	else
+	{
+
+	}
+	*/
+
+}
+
+
+/**
+ * @brief BIGNUM a^(-1) by Extended Binary GCD algorithm 
+ * @details
+ * - 입력 a 의 역원 계산
+ * - BIGNUM *x 출력 s.t. ax = 1 mod p 
+ * - Lecture Note 참고
+ * @param[out] BIGNUM *x \n
+ * @param[in] BIGNUM *a (const)
+ * @param[in] BIGNUM *p (const)
+ * @date 2017. 04. 08. v1.00 \n
+ * @todo 아직 미완성
+ */
+void BN_Ext_Inv(BIGNUM *x, const BIGNUM *a, const BIGNUM *p)
+{	
+	BIGNUM g, u, v;
+	BIGNUM A, B, C, D;
+	/*
+	BN_Init(&g, )
+
+	// while x and y are both even
+	while(((x->Num[0] & 1) == 0) && ((y->Num[0] & 1) == 0))
+	{
+		BN_RShift_Bit(x, x, 1);
+		BN_RShift_Bit(y, y, 1);
+		BN_LShift_Bit(g, g, 1);	
+	}
+	BN_Init_Copy(&u, x);
+	BN_Init_Copy(&v, y);
+	BN_Init_One(&A);
+	BN_Init_Zero(&B);
+	BN_Init_Zero(&C);
+	BN_Init_One(&D);
+
+	while((u.Num[0] & 1) == 0)
+	{
+		BN_RShift_Bit(&u, &u, 1);
+		if()
+	}
+
+	while((v.Num[0] & 1) == 0)
+	{
+		BN_RShift_Bit(&v, &v, 1);
+		if()
+	}
+	
+	// if u < v
+	if(BN_Abs_Cmp(&u, &v) == SMALL)
+	{
+		BN_Abs_Sub(&v, &v, &u);
+		BN_Abs_Sub(&C, &C, &A);
+		BN_Abs_Sub(&D, &D, &B);
+	}
+	else // if u >= v
+	{
+		BN_Abs_Sub(&u, &u, &v);
+		BN_Abs_Sub(&A, &A, &C);
+		BN_Abs_Sub(&B, &B, &D);		
+	}
+
+	if((u.Length == 0) &&(u.Num[0] == 0))
+	{
+		BN_Copy(a, &C);
+		BN_Copy(b, &D);
+	}
+	else
+	{
+		
+	}
 	*/
 
 }

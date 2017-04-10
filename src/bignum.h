@@ -15,6 +15,7 @@ typedef struct _BIGNUM
 // Define Function 
 void BN_Init(BIGNUM *A, const UNWORD len, const SNWORD sign, const SNWORD flag);
 void BN_Init_Zero(BIGNUM *A);
+void BN_Init_One(BIGNUM *A);
 void BN_Init_Rand(BIGNUM *A, const UNWORD maxsize);
 void BN_Init_Copy(BIGNUM *R, const BIGNUM *A);
 void BN_Zeroize(BIGNUM *A);
@@ -32,7 +33,7 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit);
 
 
 //void BN_Bin_GCD(BIGNUM *R, const BIGNUM *A, const BIGNUM *B);
-//void BN_Ex_Bin_GCD(BIGNUM *U, BIGNUM *V, BIGNUM *D, const BIGNUM *X, const BIGNUM *N);
+//void BN_Ext_Bin_GCD(BIGNUM *U, BIGNUM *V, BIGNUM *D, const BIGNUM *X, const BIGNUM *N);
 
 
 #else

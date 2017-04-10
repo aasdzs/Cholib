@@ -78,7 +78,7 @@ void GF2N_Redc(GF2N *R, const GF2N *A, const GF2N *IRR)
 	UNWORD tmp_sft;
 	GF2N t;
 
-	GF2N_Init(t, A->Length, DEFAULT);
+	GF2N_Init(&t, A->Length, DEFAULT);
 	GF2N_Copy(R, A);
 	// 기약 다항식 최고차항 m
 	deg_m = GF2N_Deg(IRR);
@@ -86,7 +86,7 @@ void GF2N_Redc(GF2N *R, const GF2N *A, const GF2N *IRR)
 	deg_r = GF2N_Deg(R);
 	while(deg_r >= deg_m)
 	{	
-		tmp_sft = (deg_r - deg_m)
+		tmp_sft = (deg_r - deg_m);
 		GF2N_LShift_Bit(&t, IRR, tmp_sft);
 		GF2N_Add(R, R, &t);
 		deg_r = GF2N_Deg(R);
@@ -113,7 +113,7 @@ void GF2N_Div(GF2N *Q, GF2N *R, const GF2N *A, const GF2N *IRR)
 	UNWORD deg_m, deg_r;
 	UNWORD tmp_sft;
 	GF2N t, q;
-
+	/*
 	// 기약 다항식 최고차항 m
 	deg_m = GF2N_Deg(IRR);
 
@@ -125,12 +125,13 @@ void GF2N_Div(GF2N *Q, GF2N *R, const GF2N *A, const GF2N *IRR)
 	deg_r = GF2N_Deg(R);
 	while(deg_r >= deg_m)
 	{	
-		tmp_sft = (deg_r - deg_m)
+		tmp_sft = (deg_r - deg_m);
 		GF2N_LShift_Bit(&t, IRR, tmp_sft);
 		GF2N_Add(R, R, &t);
 		deg_r = GF2N_Deg(R);
 		
 	}
+	*/
 }
 
 /**
@@ -143,7 +144,7 @@ void GF2N_Div(GF2N *Q, GF2N *R, const GF2N *A, const GF2N *IRR)
  * @param[out] BIGNUM *R
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
- * @date 2017. 03. 28. v1.00 \n
+ * @date 2017. 04. 07. v1.00 \n
  */
 void GF2N_Mul(GF2N *R, const GF2N *A, const GF2N *B, const GF2N *IRR)
 {

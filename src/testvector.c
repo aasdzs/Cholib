@@ -3,6 +3,11 @@
 #include "bn_operation.h"
 #include "wd_operation.h"
 
+void Sage_Test()
+{
+	
+}
+
 void sagetest_bignum()
 {
 	SNWORD i;
@@ -79,7 +84,7 @@ void sagetest_bn_operation()
 	fopen_s(&fp, "sagetest_bn_operation.txt", "at");   
 
 // 연산 테스트 
-#if 1
+#if 0
 	for(n = 0 ; n < 1 ; n++)
 	{
 		//// BIGNUM 랜덤 생성

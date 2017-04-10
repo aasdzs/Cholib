@@ -24,6 +24,7 @@
  * @param[in] UNWORD *a
  * @return UNWORD msb
  * @date 2017. 03. 28. v1.00 \n
+ * @todo 미완
  */
 UNWORD UNWORD_MSB(const UNWORD a)
 {	
