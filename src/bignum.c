@@ -43,6 +43,8 @@ void BN_Init(BIGNUM *A, const UNWORD len, const SNWORD sign, const SNWORD flag)
 	A->Flag = flag;
 }
 
+
+
 /**
  * @brief Initialize to Zero BIGNUM
  * @details
@@ -55,7 +57,7 @@ void BN_Init(BIGNUM *A, const UNWORD len, const SNWORD sign, const SNWORD flag)
  */
 void BN_Init_Zero(BIGNUM *A)
 {	
-    A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
+	A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
 	A->Length = 1; 
 	A->Sign = ZERO;
 	A->Flag = DEFAULT;
@@ -72,7 +74,7 @@ void BN_Init_Zero(BIGNUM *A)
  */
 void BN_Init_One(BIGNUM *A)
 {	
-    A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
+	A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
 	A->Num[0] = 1;
 	A->Length = 1; 
 	A->Sign = PLUS;
@@ -103,7 +105,7 @@ void BN_Init_Rand(BIGNUM *A, const UNWORD maxsize)
 	else if(rlen & 1)
 		A->Sign = MINUS;
 	else
-        A->Sign = PLUS;
+		A->Sign = PLUS;
 }
 
 /**
@@ -146,7 +148,7 @@ void BN_Zeroize(BIGNUM *A)
 	if(A->Flag == OPTIMIZE)
 	{
 		A->Num = (UNWORD *)realloc(A->Num, sizeof(UNWORD));
-    	A->Length = 1;
+		A->Length = 1;
 	}
 }
 
@@ -184,7 +186,7 @@ void BN_Randomize(BIGNUM *A)
 		else if(A->Num[0] & 1)
 			A->Sign = MINUS;
 		else
-        	A->Sign = PLUS;
+			A->Sign = PLUS;
 	}
 }
 
