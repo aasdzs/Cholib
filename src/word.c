@@ -1,5 +1,5 @@
 /**
- * @file wd_operation.c
+ * @file word.c
  * @brief WORD 단위 연산
  * @details 
  * - Addition
@@ -15,7 +15,7 @@
 
 #include "config.h"
 #include "bignum.h"
-#include "wd_operation.h"
+#include "word.h"
 
 /**
  * @brief Search for MSB (Most Significant Bit)
@@ -41,6 +41,7 @@ UNWORD UNWORD_MSB(const UNWORD a)
  * @param[in] UNWORD B (const)
  * @date 2017. 03. 28. v1.00 \n
  */
+
 void UNWORD_Mul(UNWORD *r, const UNWORD a, const UNWORD b)
 {	
 	UNWORD half_len = BIT_LEN / 2;
@@ -77,7 +78,8 @@ void UNWORD_Mul(UNWORD *r, const UNWORD a, const UNWORD b)
  * @param[in] UNWORD b (const)
  * @date 2017. 03. 28. v1.00 \n
  */
-void BN_UNWORD_Mul(BIGNUM *R, const BIGNUM *A, const UNWORD b)
+/*
+void BN_UNWORD_Mul(BIGNUM *R, BIGNUM *A, const UNWORD b)
 {	
 	UNWORD i, n;
 	UNWORD carry = 0;
@@ -126,7 +128,7 @@ void BN_UNWORD_Mul(BIGNUM *R, const BIGNUM *A, const UNWORD b)
 	// BIGNUM 최적화
 	BN_Optimize_Out(R);		
 }
-
+*/
 /**
  * @brief Multiply UNWORD A and B and 2
  * @details

@@ -5,7 +5,7 @@
 
 SNINT main ()
 {
-	//Sage_Test();
+	Sage_Test();
 	//Benchmark_Target();
 	return 0;
 }

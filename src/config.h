@@ -23,6 +23,7 @@ typedef				float	FLOAT;
 
 // CONFIG
 #define BIT_LEN 32
+#define NAME_SIZE 1000
 
 #if (BIT_LEN == 8)
 #define UNWORD		    UCHAR
@@ -30,6 +31,8 @@ typedef				float	FLOAT;
 #define WORD_MASK		0xFF
 #define WORD_MASK_H		0xF0
 #define WORD_MASK_L		0x0F
+#define WORD_MASK_MSB	0x80
+#define WORD_MASK_LSB	0x01
 
 #elif (BIT_LEN == 32)
 #define UNWORD		    UNINT
@@ -37,6 +40,8 @@ typedef				float	FLOAT;
 #define WORD_MASK		0xFFFFFFFF
 #define WORD_MASK_H		0xFFFF0000
 #define WORD_MASK_L		0x0000FFFF
+#define WORD_MASK_MSB	0x80000000
+#define WORD_MASK_LSB	0x00000001
 #endif
 
 #define SUCCESS		1
@@ -54,7 +59,10 @@ typedef				float	FLOAT;
 #define DEFAULT     0
 
 
+
+
 // Define Function 
+void Sage_Test();
 //void sagetest_bignum();
 //void sagetest_bn_operation();
 
