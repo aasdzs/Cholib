@@ -17,7 +17,7 @@
 //#include "gf2n.h"
 //#include "word.h"
 //
-#define TEST_NUM 1
+#define TEST_NUM 200
 //
 
 #include"benchmark.h"
@@ -156,40 +156,75 @@ void Sage_Test_GF2N()
 	fclose(fp);
 	GF2N_Zero_Free(&a);
 #endif 
-#if 1
+#if 0
+// void GF2N_LShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit);
+	GF2N a, r;
+	UNWORD sft;
+	FILE *fp;
+	// DEFAULT
+	if(rand() & 1)
+	{
+		GF2N_Init_Rand(&a, 4, DEFAULT);
+		GF2N_Init_Rand(&r, 4, DEFAULT);
+	}
+	else
+	{
+		GF2N_Init_Rand(&a, 4, OPTIMIZE);
+		GF2N_Init_Rand(&r, 4, OPTIMIZE);
+	}
+	fopen_s(&fp, "GF2N_LShift_Bit_bin.txt", "at");
+	printf("bin(");
+	fprintf(fp, "bin(");
+	fclose(fp);
+	GF2N_Print_bin("GF2N_LShift_Bit_bin.txt", &a);
+	sft = rand() % 100;
+	fopen_s(&fp, "GF2N_LShift_Bit_bin.txt", "at");
+	printf(" << %d) == bin(", sft);
+	fprintf(fp, " << %d) == bin(", sft);
+	fclose(fp);
+	GF2N_LShift_Bit(&r, &a, sft);
+	GF2N_Print_bin("GF2N_LShift_Bit_bin.txt", &r);
+	fopen_s(&fp, "GF2N_LShift_Bit_bin.txt", "at");
+	printf(")\n", sft);
+	fprintf(fp, ")\n", sft);
+	fclose(fp);
+	GF2N_Zero_Free(&a);
+	GF2N_Zero_Free(&r);	
+#endif 
+#if 0
 // void GF2N_RShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit);
 	GF2N a, r;
 	UNWORD sft;
 	FILE *fp;
 	// DEFAULT
-	GF2N_Init(&a, 4, DEFAULT);
-	GF2N_Init(&r, 4, DEFAULT);
-	GF2N_Randomize(&a);
+	if(rand() & 1)
+	{
+		GF2N_Init_Rand(&a, 4, DEFAULT);
+		GF2N_Init_Rand(&r, 4, DEFAULT);
+	}
+	else
+	{
+		GF2N_Init_Rand(&a, 4, OPTIMIZE);
+		GF2N_Init_Rand(&r, 4, OPTIMIZE);
+	}
+	fopen_s(&fp, "GF2N_RShift_Bit_bin.txt", "at");
+	printf("bin(");
+	fprintf(fp, "bin(");
+	fclose(fp);
 	GF2N_Print_bin("GF2N_RShift_Bit_bin.txt", &a);
 	sft = rand() % 100;
 	fopen_s(&fp, "GF2N_RShift_Bit_bin.txt", "at");
-	printf("%d\n", sft);
-	fprintf(fp, "%d\n", sft);
+	printf(" >> %d) == bin(", sft);
+	fprintf(fp, " >> %d) == bin(", sft);
 	fclose(fp);
 	GF2N_RShift_Bit(&r, &a, sft);
 	GF2N_Print_bin("GF2N_RShift_Bit_bin.txt", &r);
-	GF2N_Zero_Free(&a);
-	GF2N_Zero_Free(&r);
-	// OPTIMIZE
-	GF2N_Init(&a, 4, OPTIMIZE);
-	GF2N_Init(&r, 4, OPTIMIZE);
-	GF2N_Randomize(&a);
-	GF2N_Print_bin("GF2N_RShift_Bit_bin.txt", &a);
-	sft = rand() % 100;
 	fopen_s(&fp, "GF2N_RShift_Bit_bin.txt", "at");
-	printf("%d\n", sft);
-	fprintf(fp, "%d\n", sft);
+	printf(")\n", sft);
+	fprintf(fp, ")\n", sft);
 	fclose(fp);
-	GF2N_RShift_Bit(&r, &a, sft);
-	GF2N_Print_bin("GF2N_RShift_Bit_bin.txt", &r);
 	GF2N_Zero_Free(&a);
-	GF2N_Zero_Free(&r);
-		
+	GF2N_Zero_Free(&r);	
 #endif 
 
 
@@ -197,6 +232,210 @@ void Sage_Test_GF2N()
 
 }
 
+void Sage_Test_BIGNUM()
+{
+#if 0
+// void GF2N_Init(GF2N *A, const UNWORD len, const SNWORD flag);
+	GF2N a;
+	GF2N_Init(&a, 4, DEFAULT);
+	GF2N_Print_bin("GF2N_Init_bin.txt", &a);
+	GF2N_Print_poly("GF2N_Init_poly.txt", &a);
+	GF2N_Zero_Free(&a);
+#endif 
+#if 0
+//void GF2N_Init_Rand(GF2N *A, const UNWORD maxsize, const UNWORD flag);
+	GF2N a;
+	GF2N_Init_Rand(&a, 4, DEFAULT);
+	GF2N_Print_bin("GF2N_GF2N_Init_Rand_bin.txt", &a);
+	GF2N_Print_poly("GF2N_GF2N_Init_Rand_poly.txt", &a);
+	GF2N_Zero_Free(&a);
+#endif 
+#if 0
+//void GF2N_Init_Zero(GF2N *A, const UNWORD maxsize, const UNWORD flag);
+	GF2N a;
+	GF2N_Init_Zero(&a, 4, DEFAULT);
+	GF2N_Print_bin("GF2N_Init_Zero_bin.txt", &a);
+	GF2N_Print_poly("GF2N_Init_Zero_poly.txt", &a);
+	GF2N_Zero_Free(&a);
+#endif 
+#if 0
+// void GF2N_Init_Copy(GF2N *R, const GF2N *A);
+	GF2N a, b;
+	GF2N_Init_Rand(&a, 4, DEFAULT);
+	GF2N_Init_Copy(&b, &a);
+	GF2N_Print_poly("GF2N_Init_Copy_poly.txt", &a);
+	GF2N_Print_poly("GF2N_Init_Copy_poly.txt", &b);
+	GF2N_Zero_Free(&a);
+	GF2N_Zero_Free(&b);
+#endif 
+#if 0
+// void GF2N_Zeroize(GF2N *A);
+	GF2N a;
+	GF2N_Init_Rand(&a, 4, DEFAULT);
+	GF2N_Print_bin("GF2N_Zeroize_bin.txt", &a);
+	GF2N_Print_poly("GF2N_Zeroize_poly.txt", &a);
+	GF2N_Zeroize(&a);
+	GF2N_Print_bin("GF2N_Zeroize_bin.txt", &a);
+	GF2N_Print_poly("GF2N_Zeroize_poly.txt", &a);
+	GF2N_Zero_Free(&a);
+	// Optimize
+	GF2N_Init_Rand(&a, 4, OPTIMIZE);
+	GF2N_Print_bin("GF2N_Zeroize_bin.txt", &a);
+	GF2N_Print_poly("GF2N_Zeroize_poly.txt", &a);
+	GF2N_Zeroize(&a);
+	GF2N_Print_bin("GF2N_Zeroize_bin.txt", &a);
+	GF2N_Print_poly("GF2N_Zeroize_poly.txt", &a);
+	GF2N_Zero_Free(&a);
+#endif 
+#if 0
+// void GF2N_Copy(GF2N *R, const GF2N *A);
+	GF2N a, b;
+	GF2N_Init_Rand(&a, 4, DEFAULT);
+	GF2N_Init_Rand(&b, 4, DEFAULT);
+	GF2N_Zeroize(&b);
+	GF2N_Print_bin("GF2N_Copy_bin.txt", &a);
+	GF2N_Print_bin("GF2N_Copy_bin.txt", &b);
+	GF2N_Copy(&b, &a);
+	GF2N_Print_bin("GF2N_Copy_bin.txt", &a);
+	GF2N_Print_bin("GF2N_Copy_bin.txt", &b);
+	GF2N_Zero_Free(&a);
+	GF2N_Zero_Free(&b);
+#endif 
+#if 0
+// void GF2N_Realloc_Mem(GF2N *A, const UNWORD size); void GF2N_Zero_Realloc_Mem(GF2N *A, const UNWORD size);
+	GF2N a;
+	// GF2N_Realloc_Mem
+	GF2N_Init_Rand(&a, 4, DEFAULT);
+	GF2N_Print_bin("GF2N_Realloc_Mem_bin.txt", &a);
+	GF2N_Realloc_Mem(&a, 1);
+	GF2N_Print_bin("GF2N_Realloc_Mem_bin.txt", &a);
+	GF2N_Zero_Free(&a);
+	// GF2N_Zero_Realloc_Mem
+	GF2N_Init_Rand(&a, 4, OPTIMIZE);
+	GF2N_Print_bin("GF2N_Zero_Realloc_Mem_bin.txt", &a);
+	GF2N_Zero_Realloc_Mem(&a, 1);
+	GF2N_Print_bin("GF2N_Zero_Realloc_Mem_bin.txt", &a);
+	GF2N_Zero_Free(&a);
+#endif 
+#if 0
+// void GF2N_Optimize_Out(GF2N *A);
+	GF2N a;
+	// GF2N_Realloc_Mem
+	GF2N_Init(&a, 8, OPTIMIZE);
+	GF2N_Randomize(&a);
+	GF2N_Print_bin("GF2N_Optimize_Out_bin.txt", &a);
+	a.Num[a.Length - 1] = 0;
+	a.Num[a.Length - 2] = 0;
+	GF2N_Print_bin("GF2N_Optimize_Out_bin.txt", &a);
+	GF2N_Optimize_Out(&a);
+	GF2N_Print_bin("GF2N_Optimize_Out_bin.txt", &a);
+	GF2N_Zero_Free(&a);
+#endif 
+#if 0
+// void GF2N_Free(GF2N *R, const GF2N *A); void GF2N_Zero_Free(GF2N *R, const GF2N *A);
+	GF2N a;
+	// GF2N_Free
+	GF2N_Init_Rand(&a, 4, DEFAULT);
+	GF2N_Print_bin("GF2N_Free_bin.txt", &a);
+	GF2N_Print_poly("GF2N_Free_poly.txt", &a);
+	GF2N_Free(&a);
+	GF2N_Print_bin("GF2N_Free_bin.txt", &a);
+	GF2N_Print_poly("GF2N_Free_poly.txt", &a);
+	// GF2N_Zero_Free
+	GF2N_Init_Rand(&a, 4, OPTIMIZE);
+	GF2N_Print_bin("GF2N_Free_bin.txt", &a);
+	GF2N_Print_poly("GF2N_Free_poly.txt", &a);
+	GF2N_Zero_Free(&a);
+	GF2N_Print_bin("GF2N_Free_bin.txt", &a);
+	GF2N_Print_poly("GF2N_Free_poly.txt", &a);
+#endif 
+#if 0
+// void GF2N_Deg(GF2N *R, const GF2N *A);
+	GF2N a;
+	FILE *fp;
+	GF2N_Init_Rand(&a, 4, DEFAULT);
+	GF2N_Print_poly("GF2N_Deg_poly.txt", &a);
+	fopen_s(&fp, "GF2N_Deg_poly.txt", "at");
+	printf("%d\n", GF2N_Deg(&a));
+	fprintf(fp, "%d\n", GF2N_Deg(&a));
+	fclose(fp);
+	GF2N_Zero_Free(&a);
+#endif 
+#if 0
+// void GF2N_LShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit);
+	GF2N a, r;
+	UNWORD sft;
+	FILE *fp;
+	// DEFAULT
+	if(rand() & 1)
+	{
+		GF2N_Init_Rand(&a, 4, DEFAULT);
+		GF2N_Init_Rand(&r, 4, DEFAULT);
+	}
+	else
+	{
+		GF2N_Init_Rand(&a, 4, OPTIMIZE);
+		GF2N_Init_Rand(&r, 4, OPTIMIZE);
+	}
+	fopen_s(&fp, "GF2N_LShift_Bit_bin.txt", "at");
+	printf("bin(");
+	fprintf(fp, "bin(");
+	fclose(fp);
+	GF2N_Print_bin("GF2N_LShift_Bit_bin.txt", &a);
+	sft = rand() % 100;
+	fopen_s(&fp, "GF2N_LShift_Bit_bin.txt", "at");
+	printf(" << %d) == bin(", sft);
+	fprintf(fp, " << %d) == bin(", sft);
+	fclose(fp);
+	GF2N_LShift_Bit(&r, &a, sft);
+	GF2N_Print_bin("GF2N_LShift_Bit_bin.txt", &r);
+	fopen_s(&fp, "GF2N_LShift_Bit_bin.txt", "at");
+	printf(")\n", sft);
+	fprintf(fp, ")\n", sft);
+	fclose(fp);
+	GF2N_Zero_Free(&a);
+	GF2N_Zero_Free(&r);	
+#endif 
+#if 0
+// void GF2N_RShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit);
+	GF2N a, r;
+	UNWORD sft;
+	FILE *fp;
+	// DEFAULT
+	if(rand() & 1)
+	{
+		GF2N_Init_Rand(&a, 4, DEFAULT);
+		GF2N_Init_Rand(&r, 4, DEFAULT);
+	}
+	else
+	{
+		GF2N_Init_Rand(&a, 4, OPTIMIZE);
+		GF2N_Init_Rand(&r, 4, OPTIMIZE);
+	}
+	fopen_s(&fp, "GF2N_RShift_Bit_bin.txt", "at");
+	printf("bin(");
+	fprintf(fp, "bin(");
+	fclose(fp);
+	GF2N_Print_bin("GF2N_RShift_Bit_bin.txt", &a);
+	sft = rand() % 100;
+	fopen_s(&fp, "GF2N_RShift_Bit_bin.txt", "at");
+	printf(" >> %d) == bin(", sft);
+	fprintf(fp, " >> %d) == bin(", sft);
+	fclose(fp);
+	GF2N_RShift_Bit(&r, &a, sft);
+	GF2N_Print_bin("GF2N_RShift_Bit_bin.txt", &r);
+	fopen_s(&fp, "GF2N_RShift_Bit_bin.txt", "at");
+	printf(")\n", sft);
+	fprintf(fp, ")\n", sft);
+	fclose(fp);
+	GF2N_Zero_Free(&a);
+	GF2N_Zero_Free(&r);	
+#endif 
+
+
+
+
+}
 
 
 //
@@ -314,9 +553,9 @@ void Sage_Test_GF2N()
 //		BN_Kara_Mul(&R, &A, &B);
 //
 //
-//		//UNWORD_Mul(R.Num, A.Num[0], A.Num[0]);
-//		//UNWORD_Sqr(R.Num, A.Num[0]);
-//		//UNWORD_2_Mul(R.Num, A.Num[0], B.Num[0]);
+//		//UW_Mul(R.Num, A.Num[0], A.Num[0]);
+//		//UW_Sqr(R.Num, A.Num[0]);
+//		//UW_Mul2(R.Num, A.Num[0], B.Num[0]);
 //				
 //		//BN_Basic_Mul(&R, &A, &A);
 //		
@@ -385,6 +624,6 @@ void Sage_Test()
 	for(i = 0 ; i < TEST_NUM ; i++)
 	{
 		Sage_Test_GF2N();
-		//Sage_Test_BIGNUM();
+		Sage_Test_BIGNUM();
 	}
 }

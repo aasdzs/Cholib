@@ -17,6 +17,40 @@
 #include "bignum.h"
 #include "word.h"
 
+
+/**
+ * @brief Quotient of (a, wlen)
+ * @details
+ * - (a / wlen) 값 \n
+ * @param[in] UNWORD a (const)
+ * @param[in] UNWORD wlen (const)
+ * @return UNWORD quo
+ * @date 2017. 04. 13. v1.00 \n
+ * @todo 미완
+ */
+UNWORD UW_Div(const UNWORD a, const UNWORD wlen)
+{	
+	UNWORD quo;
+	quo = a / wlen;
+	return quo;
+}
+
+/**
+ * @brief Remainder of (a, wlen)
+ * @details
+ * - (a % wlen) 값 \n
+ * @param[in] UNWORD a (const)
+ * @param[in] UNWORD wlen (const)
+ * @return UNWORD quo
+ * @date 2017. 04. 13. v1.00 \n
+ */
+UNWORD UW_Mod(const UNWORD a, const UNWORD wlen)
+{	
+	UNWORD rem;
+	rem = a % wlen;
+	return rem;
+}
+
 /**
  * @brief Search for MSB (Most Significant Bit)
  * @details
@@ -26,7 +60,7 @@
  * @date 2017. 03. 28. v1.00 \n
  * @todo 미완
  */
-UNWORD UNWORD_MSB(const UNWORD a)
+UNWORD UW_MSB(const UNWORD a)
 {	
 	UNWORD msb;
 }
@@ -42,7 +76,7 @@ UNWORD UNWORD_MSB(const UNWORD a)
  * @date 2017. 03. 28. v1.00 \n
  */
 
-void UNWORD_Mul(UNWORD *r, const UNWORD a, const UNWORD b)
+void UW_Mul(UNWORD *r, const UNWORD a, const UNWORD b)
 {	
 	UNWORD half_len = BIT_LEN / 2;
 	
@@ -79,7 +113,7 @@ void UNWORD_Mul(UNWORD *r, const UNWORD a, const UNWORD b)
  * @date 2017. 03. 28. v1.00 \n
  */
 /*
-void BN_UNWORD_Mul(BIGNUM *R, BIGNUM *A, const UNWORD b)
+void BN_UW_Mul(BIGNUM *R, BIGNUM *A, const UNWORD b)
 {	
 	UNWORD i, n;
 	UNWORD carry = 0;
@@ -96,7 +130,7 @@ void BN_UNWORD_Mul(BIGNUM *R, BIGNUM *A, const UNWORD b)
 		for(i = 0 ; i < A->Length ; i++)
 		{
 			// WORD * WORD 곱셈 , tmp[1]|tmp[0] 출력
-			UNWORD_Mul(tmp, A->Num[i], b);
+			UW_Mul(tmp, A->Num[i], b);
 			
 			// 결과 배열에 tmp[0] 추가
 			R->Num[i] += tmp[0];
@@ -139,12 +173,12 @@ void BN_UNWORD_Mul(BIGNUM *R, BIGNUM *A, const UNWORD b)
  * @param[in] UNWORD B (const)
  * @date 2017. 03. 28. v1.00 \n
  */
-void UNWORD_2_Mul(UNWORD *r, const UNWORD a, const UNWORD b)
+void UW_Mul2(UNWORD *r, const UNWORD a, const UNWORD b)
 {	
 	UNWORD tmp_h, tmp_l;
 	
 	// WORD 단위 곱셈
-	UNWORD_Mul(r, a, b);
+	UW_Mul(r, a, b);
 
 	tmp_h = (r[1] << 1); // r[1] * 2
 	tmp_l = (r[0] << 1); // r[0] * 2
@@ -164,7 +198,7 @@ void UNWORD_2_Mul(UNWORD *r, const UNWORD a, const UNWORD b)
  * @param[in] UNWORD A (const)
  * @date 2017. 03. 28. v1.00 \n
  */
-void UNWORD_Sqr(UNWORD *r, const UNWORD a)
+void UW_Sqr(UNWORD *r, const UNWORD a)
 {	
 	UNWORD half_len = BIT_LEN / 2;
 	
