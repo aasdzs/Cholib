@@ -370,6 +370,7 @@ void BN_Zero_Free(BIGNUM *A)
  * @param[in] BIGNUM *A (const)
  * @param[in] s_bit (const) // shift bit
  * @date 2017. 04. 13. v1.00 \n
+ * @todo sage 에서 음수 일 때 쉬프트 문제...
  */
 void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 {
@@ -383,6 +384,8 @@ void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 	{
 		// R 길이 조정
 		BN_Optimize_In(R, A->Length);
+		R->Sign = A->Sign;
+		R->Flag = A->Flag;
 
 		if(tmp_bit >= BIT_LEN) // s_bit >= BIT_LEN (워드 이동)
 		{
@@ -409,7 +412,7 @@ void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 			// 최상위 WORD 처리 (i = A->Num[A->Length - 1] 일 때)
 			R->Num[i] >>= tmp_bit;
 		}		
-		
+
 		if(A->Flag == OPTIMIZE)
 			BN_Optimize_Out(R);	
 	}
@@ -434,6 +437,10 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 	UNWORD word_len = A->Length;
 	UNWORD zero_cnt = 0;
 	
+	// R 설정 동일하게
+	R->Sign = A->Sign;
+	R->Flag = A->Flag;
+
 	for(i = BIT_LEN - 1 ; i >= 0 ; i--)
 	{
 		// 상위 WORD 부터 shift 하면서 0 인 bit 체크
@@ -476,20 +483,7 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Absolute Value Compare BIGNUM *A to BIGNUM *B
  * @details
@@ -502,9 +496,13 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
  * @return LARGE(1), EQUAL(0), SMALL(-1)
  * @date 2017. 03. 28. v1.00 \n
  */
-SNWORD BN_Abs_Cmp(const BIGNUM *A, const BIGNUM *B)
+SNWORD BN_Abs_Cmp(BIGNUM *A, BIGNUM *B)
 {
 	SNWORD i;
+
+	// 빈 배열 체크 
+	BN_Optimize_Out(A);
+	BN_Optimize_Out(B);
 	
 	// 1) A 와 B 의 WORD Length(개수) 같을 때
 	if(A->Length == B->Length)
@@ -521,6 +519,7 @@ SNWORD BN_Abs_Cmp(const BIGNUM *A, const BIGNUM *B)
 		return (A->Length > B->Length) ? LARGE : SMALL; // A > B 이면 LARGE 리턴
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Compare BIGNUM *A to BIGNUM *B
  * @details
@@ -532,7 +531,7 @@ SNWORD BN_Abs_Cmp(const BIGNUM *A, const BIGNUM *B)
  * @return LARGE(1), EQUAL(0), SMALL(-1)
  * @date 2017. 03. 28. v1.00 \n
  */
-SNWORD BN_Cmp(const BIGNUM *A, const BIGNUM *B)
+SNWORD BN_Cmp(BIGNUM *A, BIGNUM *B)
 {	
 	// A, B Sign 다를 때
 	if(A->Sign != B->Sign)
@@ -545,6 +544,44 @@ SNWORD BN_Cmp(const BIGNUM *A, const BIGNUM *B)
 			return BN_Abs_Cmp(B, A); // |A < B| => (-A > -B) : retun LARGE(1)
 	}
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**	
+ * @brief Print BIGNUM Hex form
+ * @details
+ * - BIGNUM *A 를 콘솔창 출력
+ * - "0x1234...cdef" -> Hex form
+ * @param[in] BIGNUM *A (const)
+ * @date 2017. 04. 15. v1.00 \n
+ */
+void BN_Print_hex(const BIGNUM *A)
+{
+	SNWORD i;
+	
+	printf("%s0x", (A->Sign == -1) ? "-" : "");
+	for(i = A->Length ; i > 0 ; i--)
+		printf("%08X", A->Num[i - 1]);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**	
+ * @brief File Print BIGNUM Hex form
+ * @details
+ * - BIGNUM *A 를 파일 출력 \n
+ * - "0x1234...cdef" -> Hex form \n
+ * @param[in] FILE *fp
+ * @param[in] BIGNUM *A (const)
+ * @date 2017. 04. 15. v1.00 \n
+ */
+void BN_FPrint_hex(FILE *fp, const BIGNUM *A)
+{
+	SNWORD i;
+	fprintf(fp, "%s0x", (A->Sign == -1) ? "-" : "");
+	for(i = A->Length ; i > 0 ; i--)
+		fprintf(fp, "%08X", A->Num[i - 1]);
+}
+
 
 
 /**
@@ -748,6 +785,9 @@ void BN_Ext_Inv(BIGNUM *x, const BIGNUM *a, const BIGNUM *p)
 
 }
 
+// Bignum Opertation
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Absolute Add BIGNUM *A and BIGNUM *B
  * @details
@@ -759,6 +799,7 @@ void BN_Ext_Inv(BIGNUM *x, const BIGNUM *a, const BIGNUM *p)
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
  * @date 2017. 03. 28. v1.00 \n
+ * @todo A>=B 가 아닐 때 예외 처리
  */
 void BN_Abs_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {	
@@ -766,10 +807,12 @@ void BN_Abs_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 	UNWORD carry = 0;		// 초기 Carry = 0
 	UNWORD tmp1, tmp2;
 	
-	//// R 크기가 |A| + |B| 결과보다 작으면 재할당 
-	//if(R->Length < (A->Length + 1))
-	//	BN_Realloc_Mem(R, (A->Length + 1));	
-
+	// 연산 결과 최대값 설정	
+	if(A->Length > B->Length)
+		BN_Optimize_In(R, A->Length + 1);
+	else
+		BN_Optimize_In(R, B->Length + 1);
+	
 	for(i = 0 ; i < B->Length ; i++) 
 	{
 		tmp1 = (A->Num[i] + carry) & WORD_MASK;
@@ -799,11 +842,12 @@ void BN_Abs_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		for( ; i < A->Length ; i++)
 			R->Num[i] = A->Num[i];
 	
-	R->Sign = PLUS;
+	R->Sign = A->Sign;
 	//// BIGNUM 최적화
-	//BN_Optimize_Out(R);	
+	BN_Optimize_Out(R);	
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Absolute Subtract BIGNUM *B from BIGNUM *A
  * @details
@@ -815,6 +859,7 @@ void BN_Abs_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
  * @date 2017. 03. 28. v1.00 \n
+ * @todo 입력 조건 완성 필요... if(A<B) 이면 ..?
  */
 void BN_Abs_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {	
@@ -822,10 +867,13 @@ void BN_Abs_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 	UNWORD borrow = 0;	// 초기 borrow = 0
 	UNWORD tmp1, tmp2;	
 	
-	//// R 크기가 |A| - |B| 결과보다 작으면 재할당
-	//if(R->Length < A->Length)
-	//	BN_Realloc_Mem(R, (A->Length));	
-
+	/*
+	// 연산 결과 최대값 설정	
+	if(A->Length > B->Length)
+		BN_Optimize_In(R, A->Length + 1);
+	else
+		BN_Optimize_In(R, B->Length + 1);	
+	*/
 	for(i = 0 ; i < B->Length ; i++) 
 	{
 		tmp1 = (A->Num[i] - borrow) & WORD_MASK;
@@ -850,11 +898,12 @@ void BN_Abs_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		for( ; i < A->Length ; i++)
 			R->Num[i] = A->Num[i];	
 
-	R->Sign = PLUS;
+	R->Sign = A->Sign;
 	// BIGNUM 최적화
 	BN_Optimize_Out(R);	
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Add BIGNUM *A and BIGNUM *B
  * @details
@@ -869,9 +918,9 @@ void BN_Abs_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 void BN_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {		
 	// A or B 가 0 인 경우 단순 배열 복사
-	if(A->Length == 0)
+	if(((A->Length == 1) && (A->Num[0] == 0)) || (B->Length == 0))
 		BN_Copy(R, B);
-	else if(B->Length == 0)
+	else if(((B->Length == 1) && (B->Num[0] == 0)) || (B->Length == 0))
 		BN_Copy(R, A);
 	else // A, B 모두 0 이 아닌 경우
 	{
@@ -879,12 +928,11 @@ void BN_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		{
 			//  a +  b =  (a + b)
 			// -a + -b = -(a + b)
-			R->Sign = A->Sign; // 결과 값 R 부호는 A, B 부호와 동일
-
 			if(A->Length >= B->Length)
 				BN_Abs_Add(R, A, B);
 			else // (A->Length < B->Length)
 				BN_Abs_Add(R, B, A);
+			R->Sign = A->Sign; // 결과 값 R 부호는 A, B 부호와 동일
 		}
 		else // A->Sign != B->Sign 인 경우
 		{
@@ -904,6 +952,7 @@ void BN_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Subtract BIGNUM *B from BIGNUM *A
  * @details
@@ -956,12 +1005,16 @@ void BN_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
  * @date 2017. 03. 28. v1.00 \n
+ * @date 2017. 04. 15. v1.01 (Optimize input)\n
  */
 void BN_Basic_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {	
 	UNWORD i, j, n;
 	UNWORD carry = 0;
 	UNWORD tmp[2];
+
+	if(R->Length < (A->Length + B->Length))
+		BN_Optimize_In(R, A->Length + B->Length);
 		
 	if((A->Length == 0) || (B->Length == 0)) // A or B 가 0 인 경우
 		BN_Zeroize(R); 

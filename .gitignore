@@ -306,3 +306,5 @@ __pycache__/
 *.sln
 Cholib/Cholib.vcxproj
 *.filters
+*.json
+*.txt

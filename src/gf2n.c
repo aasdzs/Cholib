@@ -18,8 +18,6 @@
  * @author YoungJin CHO
  * @version 1.00
  */
-
-#include "config.h"
 #include "gf2n.h"
 #include "word.h"
 
@@ -28,18 +26,16 @@
  * @brief Initialize to GF(2^n)
  * @details 
  * - 메모리 함수 내부에서 할당 \n
- * - Get GF2N struct (Num, Length, Sign, Flag) -> Generate GF2N \n
+ * - Get GF2N struct (Num, Length, Flag) -> Generate GF2N \n
  * @param[in,out] GF2N *A 
  * @param[in] UNWORD len (const) 길이
- * @param[in] UNWORD sign (const) 부호 PLUS or ZERO
  * @param[in] SNWORD flag (const) 최적화 옵션
  * @date 2017. 04. 05. v1.00 \n
  */
-void GF2N_Init(GF2N *A, const UNWORD len, const UNWORD sign, const SNWORD flag)
+void GF2N_Init(GF2N *A, const UNWORD len, const SNWORD flag)
 {
 	A->Num = (UNWORD *)calloc(len, sizeof(UNWORD)); 
 	A->Length = len; 
-	A->Sign = sign;
 	A->Flag = flag;
 }
 
@@ -55,15 +51,12 @@ void GF2N_Init(GF2N *A, const UNWORD len, const UNWORD sign, const SNWORD flag)
  * @param UNWORD maxsize (const)
  * @date 2017. 03. 28. v1.00 \n
  */
-void GF2N_Init_Rand(GF2N *A, const UNWORD maxsize, const UNWORD flag)
+void GF2N_Init_Rand(GF2N *A, const UNWORD maxsize)
 {
 	UNWORD rlen;
 	rlen = (rand() % maxsize) + 1; // 길이 0 없음
-	GF2N_Init(A, rlen, PLUS, flag); 
+	GF2N_Init(A, rlen, DEFAULT); 
 	GF2N_Randomize(A);
-
-	if((rlen == 1) && (A->Num[0] == 0))
-		A->Sign = ZERO; 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +65,7 @@ void GF2N_Init_Rand(GF2N *A, const UNWORD maxsize, const UNWORD flag)
  * @details
  * - 메모리 함수 내부에서 할당 \n
  * - Generate Zero GF2N \n
- * - Length = 1, Sign = PLUS, Flag = DEFAULT \n
+ * - Length = 1, Flag = DEFAULT \n
  * @param[in,out] GF2N *A  
  * @date 2017. 04. 07. v1.00 \n
  */
@@ -80,7 +73,6 @@ void GF2N_Init_Zero(GF2N *A)
 {	
     A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
 	A->Length = 1; 
-	A->Sign = ZERO;
 	A->Flag = DEFAULT;
 }
 
@@ -90,7 +82,7 @@ void GF2N_Init_Zero(GF2N *A)
  * @details
  * - 메모리 함수 내부에서 할당 \n
  * - 값이 1인 GF2N 생성 \n
- * - Length = 1, Sign = PLUS, Flag = DEFAULT \n
+ * - Length = 1, Flag = DEFAULT \n
  * @param[in,out] GF2N *A  
  * @date 2017. 04. 08. v1.00 \n
  */
@@ -99,7 +91,6 @@ void GF2N_Init_One(GF2N *A)
 	A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
 	A->Num[0] = 1;
 	A->Length = 1; 
-	A->Sign = PLUS;
 	A->Flag = DEFAULT;
 }
 
@@ -116,7 +107,7 @@ void GF2N_Init_One(GF2N *A)
 void GF2N_Init_Copy(GF2N *R, const GF2N *A)
 {
 	// A 와 크기 같은 BIGNUM 생성
-	GF2N_Init(R, A->Length, PLUS, A->Flag);
+	GF2N_Init(R, A->Length, A->Flag);
 	GF2N_Copy(R, A); // 값 복사
 }
 
@@ -140,9 +131,6 @@ void GF2N_Randomize(GF2N *A)
 			A->Num[i] <<= 8;
 			A->Num[i] ^= rand() ;
 		}
-	// 만약 랜덤 생성 값이 0 이면 Sign = ZERO
-	if((A->Length == 1) && (A->Num[0] == 0))
-			A->Sign = ZERO; 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +138,7 @@ void GF2N_Randomize(GF2N *A)
  * @brief Zero GF2N
  * @details 
  * - GF2N *A 를 ZERO 로 변경 \n
- * - 메모리 재할당 (크기, 부호 변경), Length = 1 \n
+ * - 메모리 재할당 (크기 변경), Length = 1 \n
  * @param[in,out] GF2N *A 
  * @date 2017. 04. 07. v1.00 \n
  * @date 2017. 04. 14. v1.01 \n
@@ -162,14 +150,13 @@ void GF2N_Zero(GF2N *A)
 		A->Num[i] = 0;
 	A->Num = (UNWORD *)realloc(A->Num, sizeof(UNWORD)); // size = 1
     A->Length = 1;
-	A->Sign = ZERO;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Zeroize GF2N
  * @details 
- * - GF2N 값만 ZERO 로 변경 (부호, 크기 변경 X) \n
+ * - GF2N 값만 ZERO 로 변경 (크기 변경 X) \n
  * @param[in,out] GF2N *A 
  * @date 2017. 04. 07. v1.00 \n
  * @date 2017. 04. 14. v1.01 \n
@@ -301,10 +288,6 @@ void GF2N_Optimize_Out(GF2N *A)
 	// 길이 0 존재 X
 	if(A->Length == 0)
 		A->Length = 1;
-
-	// A->Length = 1 , A-Num[0] = 0 인 경우 Sign = ZERO 변경
-	if((A->Length == 1) && (A->Num[0] == 0))
-		A->Sign = ZERO; 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -321,7 +304,6 @@ void GF2N_Free(GF2N *A)
 {
 	free(A->Num);
 	A->Length = ZERO;
-	A->Sign = ZERO;
 	A->Flag = DEFAULT;
 }
 
@@ -344,7 +326,6 @@ void GF2N_Zero_Free(GF2N *A)
 	}	
 	free(A->Num);
 	A->Length = ZERO;
-	A->Sign = ZERO;
 	A->Flag = DEFAULT;
 }
 
@@ -465,6 +446,44 @@ void GF2N_LShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit)
 }
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * @brief Compare GF2N *A to BIGNUM *B
+ * @details
+ * - GF2N *A 값과 GF2N *B 값 크기 비교 (Length, WORD Num 값) \n
+ * - GF2N *A 기준으로 A > B -> return LARGE(1) \n
+ * - GF2N 에서는 부호 구분 X \n
+ * - 1) Length 비교 후 \n
+ * - 2) 최상위 Num WORD부터 값 비교 \n
+ * @param[in] GF2N *A (const)
+ * @param[in] GF2N *B (const)
+ * @return LARGE(1), EQUAL(0), SMALL(-1)
+ * @date 2017. 04. 15. v1.00 \n
+ */
+SNWORD GF2N_Cmp(GF2N *A, GF2N *B)
+{
+	SNWORD i;
+
+	// 빈 배열 체크 
+	GF2N_Optimize_Out(A);
+	GF2N_Optimize_Out(B);
+	
+	// 1) A 와 B 의 WORD Length(개수) 같을 때
+	if(A->Length == B->Length)
+	{	
+		// 최상위 WORD 부터 크기 비교
+		for(i = A->Length - 1 ; i >= 0 ; i--)
+			if(A->Num[i] != B->Num[i]) // A == B 인 경우 Skip
+				return (A->Num[i] > B->Num[i]) ? LARGE : SMALL;
+		
+		// 모든 WORD에 대해서 A == B 이면 두 BIGNUM 동일
+		return EQUAL;
+	}
+	else // 2) A 와 B 의 WORD Length(개수) 다를 때
+		return (A->Length > B->Length) ? LARGE : SMALL; // A > B 이면 LARGE 리턴
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -507,18 +526,14 @@ UNWORD GF2N_Deg(const GF2N *A)
  * @details
  * - GF2N *A 를 (파일 & 콘솔창) 출력
  * - "0b101101...1001" -> Binary form
- * @param[in] SCHAR *filename
  * @param[in] CF2N *A (const)
  * @date 2017. 04. 12. v1.00 \n
  */
-void GF2N_Print_bin(SCHAR *filename, const GF2N *A)
+void GF2N_Print_bin(const GF2N *A)
 {
 	SNWORD i, j;
 	UNWORD mask;
-	FILE *fp;
-	
-	fopen_s(&fp, filename, "at");   
-	fprintf(fp, "0b");
+	   
 	printf("0b");
 	for(i = A->Length ; i > 0 ; i--)
 	{
@@ -528,42 +543,63 @@ void GF2N_Print_bin(SCHAR *filename, const GF2N *A)
 		while(mask)
 		{			
 			if(A->Num[i - 1] & mask)
-			{
-				fprintf(fp, "1");
 				printf("1");
-			}
 			else
-			{
-				fprintf(fp, "0");
 				printf("0");
-			}
 			mask >>= 1;
 			j++;
 		}
 	}
-	//fprintf(fp, "\n");
-	//printf("\n");
-	fclose(fp);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**	
+ * @brief File Print GF2N Binary Form
+ * @details
+ * - GF2N *A 를 (파일 & 콘솔창) 출력
+ * - "0b101101...1001" -> Binary form
+ * @param[in] FILE *fp
+ * @param[in] CF2N *A (const)
+ * @date 2017. 04. 12. v1.00 \n
+ */
+void GF2N_FPrint_bin(FILE *fp, const GF2N *A)
+{
+	SNWORD i, j;
+	UNWORD mask;
+	   
+	fprintf(fp, "0b");
+	for(i = A->Length ; i > 0 ; i--)
+	{
+		// 최상위 비트부터 >> 하면서 1 인 값 출력
+		mask = WORD_MASK_MSB;
+		j = 0;
+		while(mask)
+		{			
+			if(A->Num[i - 1] & mask)
+				fprintf(fp, "1");
+			else
+				fprintf(fp, "0");
+			mask >>= 1;
+			j++;
+		}
+	}
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Print GF2N Polynimial Form
  * @details
  * - GF2N *A 를 (파일 & 콘솔창) 출력
  * - "x^n + ... + x^0" -> Polynomial form
- * @param[in] SCHAR *filename
  * @param[in] CF2N *A (const)
  * @date 2017. 04. 12. v1.00 \n
  */
-void GF2N_Print_poly(SCHAR *filename, const GF2N *A)
+void GF2N_Print_poly(const GF2N *A)
 {
 	SNWORD i, j;
 	SNWORD n = 0;
 	UNWORD mask;
-	FILE *fp;
 	
-	fopen_s(&fp, filename, "at");  
 	for(i = A->Length - 1 ; i >= 0 ; i--)
 	{
 		// 최상위 비트부터 >> 하면서 1 인 값 출력
@@ -574,12 +610,8 @@ void GF2N_Print_poly(SCHAR *filename, const GF2N *A)
 			if(A->Num[i] & mask)
 			{
 				if(n != 0) // 맨 처음 다항식 앞엔 + 안붙음
-				{
-					fprintf(fp, "+");
 					printf("+");
-				}
 				// 다항식 차수 계산
-				fprintf(fp, "x^%d", (BIT_LEN * i) + j); 
 				printf("x^%d", (BIT_LEN * i) + j);
 				n = 1;
 			}	
@@ -587,9 +619,43 @@ void GF2N_Print_poly(SCHAR *filename, const GF2N *A)
 			j--;
 		}
 	}
-	//fprintf(fp, "\n");
-	//printf("\n");
-	fclose(fp);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * @brief File Print GF2N Polynimial Form
+ * @details
+ * - GF2N *A 를 (파일 & 콘솔창) 출력
+ * - "x^n + ... + x^0" -> Polynomial form
+ * @param[in] File *fp
+ * @param[in] CF2N *A (const)
+ * @date 2017. 04. 12. v1.00 \n
+ */
+void GF2N_FPrint_poly(FILE *fp, const GF2N *A)
+{
+	SNWORD i, j;
+	SNWORD n = 0;
+	UNWORD mask;
+	
+	for(i = A->Length - 1 ; i >= 0 ; i--)
+	{
+		// 최상위 비트부터 >> 하면서 1 인 값 출력
+		mask = WORD_MASK_MSB;
+		j = BIT_LEN - 1;
+		while(mask)
+		{			
+			if(A->Num[i] & mask)
+			{
+				if(n != 0) // 맨 처음 다항식 앞엔 + 안붙음
+					fprintf(fp, "+");
+				// 다항식 차수 계산
+				fprintf(fp, "x^%d", (BIT_LEN * i) + j); 
+				n = 1;
+			}	
+			mask >>= 1;
+			j--;
+		}
+	}
 }
 
 
@@ -657,7 +723,7 @@ void GF2N_Print_poly(SCHAR *filename, const GF2N *A)
  * @brief Add GF2N *A and GF2N *B
  * @details
  * - GF2N *A 와 GF2N *B 를 더해서 GF2N *R 출력
- * - GF(2) 에서는 +, - 동일 연산, Sign 구분 X
+ * - GF(2) 에서는 +, - 동일 연산 부호 구분 X
  * - *R 의 최대 크기 = A.Length or B.Length
  * @param[out] GF2N *R
  * @param[in] GF2N *A (const)
@@ -714,7 +780,7 @@ void GF2N_Redc(GF2N *R, const GF2N *A, const GF2N *IRR)
 	UNWORD tmp_sft;
 	GF2N t;
 
-	GF2N_Init(&t, A->Length, PLUS, DEFAULT);
+	GF2N_Init(&t, A->Length, DEFAULT);
 	GF2N_Copy(R, A);
 	// 기약 다항식 최고차항 m
 	deg_m = GF2N_Deg(IRR);

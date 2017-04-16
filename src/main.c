@@ -1,7 +1,7 @@
 
 #include "config.h"
 
-#if 0
+#if 1
 
 SNINT main ()
 {

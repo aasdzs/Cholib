@@ -14,28 +14,14 @@ typedef struct _GF2N
 
 // Define Function 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void GF2N_Redc(GF2N *R, const GF2N *A, const GF2N *IRR);
 
 
 
 //////////////////////////
 
-void GF2N_Init(GF2N *A, const UNWORD len, const UNWORD sign, const SNWORD flag);	// done
-void GF2N_Init_Rand(GF2N *A, const UNWORD maxsize, const UNWORD flag);				// done
+void GF2N_Init(GF2N *A, const UNWORD len, const SNWORD flag);	// done
+void GF2N_Init_Rand(GF2N *A, const UNWORD maxsize);				// done
 void GF2N_Init_Zero(GF2N *A);														// done
 void GF2N_Init_One(GF2N *A);
 void GF2N_Init_Copy(GF2N *R, const GF2N *A);										// done
@@ -57,13 +43,13 @@ void GF2N_LShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit);					// done
 void GF2N_RShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit);					// done
 
 UNWORD GF2N_Deg(const GF2N *A);														// done
+SNWORD GF2N_Cmp(GF2N *A, GF2N *B);
 
 // Print Function
-void GF2N_Print_bin(char *filename, const GF2N *A);									// done
-void GF2N_Print_poly(char *filename, const GF2N *A);								// done
-
-
-
+void GF2N_Print_bin(const GF2N *A);													// done
+void GF2N_FPrint_bin(FILE *fp, const GF2N *A);										// done
+void GF2N_Print_poly(const GF2N *A);												// done
+void GF2N_FPrint_poly(FILE *fp, const GF2N *A);										// done
 
 #else
 #endif
