@@ -160,7 +160,7 @@ void BN_UW_Mul(BIGNUM *R, BIGNUM *A, const UNWORD b)
 	R->Sign = A->Sign;
 
 	// BIGNUM 최적화
-	BN_Optimize_Out(R);		
+	BN_Optimize(R);		
 }
 */
 /**

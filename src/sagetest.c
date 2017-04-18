@@ -606,17 +606,17 @@ void Sage_Test_BIGNUM()
 	BN_Zero_Free(&a);
 #endif 
 #if 0
-// void BN_Optimize_Out(BIGNUM *A);
+// void BN_Optimize(BIGNUM *A);
 	BIGNUM a;
 	FILE *fp;
-	fp = fopen("BN_Optimize_Out.txt", "at");
+	fp = fopen("BN_Optimize.txt", "at");
 	BN_Init_Rand(&a, 8);
 	a.Num[a.Length - 1] = 0;	
 	BN_Print_hex(&a);
 	BN_FPrint_hex(fp, &a);
 	printf("\n");	
 	fprintf(fp, "\n");
-	BN_Optimize_Out(&a);
+	BN_Optimize(&a);
 	BN_Print_hex(&a);
 	BN_FPrint_hex(fp, &a);
 	printf("\n");	
@@ -851,7 +851,7 @@ void Sage_Test_BIGNUM()
 	BN_Zero_Free(&b);
 	BN_Zero_Free(&r);
 #endif 
-#if 1
+#if 0
 // void BN_Basic_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 	BIGNUM a, b, r;
 	UNWORD sft;
@@ -881,6 +881,90 @@ void Sage_Test_BIGNUM()
 	BN_Zero_Free(&b);
 	BN_Zero_Free(&r);
 #endif 
+#if 0 // TESTVECTOR 필요
+// void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
+	BIGNUM a, b, r;
+	UNWORD sft;
+	FILE *fp;
+	fopen_s(&fp, "BN_Kara_Mul.txt", "at");
+	// DEFAULT
+	BN_Init_Rand(&a, 4);
+	BN_Init_Rand(&b, 4);
+	BN_Init(&r, 8, PLUS, DEFAULT);
+	printf("hex(");
+	fprintf(fp, "hex(");
+	BN_Print_hex(&a);
+	BN_FPrint_hex(fp, &a);
+	printf(" * ");
+	fprintf(fp, " * ");
+	BN_Print_hex(&b);
+	BN_FPrint_hex(fp, &b);	
+	printf(") == hex(");
+	fprintf(fp, ") == hex(");
+	BN_Kara_Mul(&r, &a, &b);								
+	BN_Print_hex(&r);
+	BN_FPrint_hex(fp, &r);
+	printf(")\n");
+	fprintf(fp, ")\n");
+	fclose(fp);
+	BN_Zero_Free(&a);
+	BN_Zero_Free(&b);
+	BN_Zero_Free(&r);
+#endif 
+#if 0
+// void BN_Sqr(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
+	BIGNUM a, r;
+	UNWORD sft;
+	FILE *fp;
+	fopen_s(&fp, "BN_Sqr.txt", "at");
+	// DEFAULT
+	BN_Init_Rand(&a, 4);
+	BN_Init(&r, 8, PLUS, DEFAULT);
+	printf("hex((");
+	fprintf(fp, "hex((");
+	BN_Print_hex(&a);
+	BN_FPrint_hex(fp, &a);
+	printf(")^2 ");
+	fprintf(fp, ")^2 ");
+	printf(") == hex(");
+	fprintf(fp, ") == hex(");
+	BN_Sqr(&r, &a);								
+	BN_Print_hex(&r);
+	BN_FPrint_hex(fp, &r);
+	printf(")\n");
+	fprintf(fp, ")\n");
+	fclose(fp);
+	BN_Zero_Free(&a);
+	BN_Zero_Free(&r);
+#endif 
+#if 1
+// void BN_Bar_Redc(BIGNUM *R, const BIGNUM *Z, const BIGNUM *P, const BIGNUM *MU)
+	BIGNUM a, r;
+	UNWORD sft;
+	FILE *fp;
+	fopen_s(&fp, "BN_Sqr.txt", "at");
+	// DEFAULT
+	BN_Init_Rand(&a, 4);
+	BN_Init(&r, 8, PLUS, DEFAULT);
+	printf("hex((");
+	fprintf(fp, "hex((");
+	BN_Print_hex(&a);
+	BN_FPrint_hex(fp, &a);
+	printf(")^2 ");
+	fprintf(fp, ")^2 ");
+	printf(") == hex(");
+	fprintf(fp, ") == hex(");
+	BN_Sqr(&r, &a);								
+	BN_Print_hex(&r);
+	BN_FPrint_hex(fp, &r);
+	printf(")\n");
+	fprintf(fp, ")\n");
+	fclose(fp);
+	BN_Zero_Free(&a);
+	BN_Zero_Free(&r);
+#endif 
+
+
 
 }
 

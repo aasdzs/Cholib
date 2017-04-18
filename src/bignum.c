@@ -14,9 +14,9 @@
  * - Multiplication
  * - Modular
  * - inversion
- * @date 2017. 04. 04.
+ * @date 2017. 
  * @author YoungJin CHO
- * @version 1.01
+ * @version 1.00
  */
 
 #include "config.h"
@@ -30,44 +30,17 @@
  * - 메모리 함수 내부에서 할당 \n
  * - Get BIGNUM struct (Num, Length, Sign, Flag) -> Generate BIGNUM \n
  * @param[in,out] BIGNUM *A 
- * @param[in] UNWORD len (const) 길이
- * @param[in] SNWORD sign (const) 부호
- * @param[in] SNWORD flag (const) 최적화 옵션
- * @date 2017. 03. 28. v1.00 \n
- * @date 2017. 03. 30. v1.01 (Flag) \n
+ * @param[in] UNWORD len (const) 
+ * @param[in] SNWORD sign (const) 
+ * @param[in] SNWORD flag (const) 
+ * @date 2017. 04. 17. v1.00 \n
  */
 void BN_Init(BIGNUM *A, const UNWORD len, const SNWORD sign, const SNWORD flag)
 {
 	A->Num = (UNWORD *)calloc(len, sizeof(UNWORD)); 
-	A->Length = len; 
+	A->Top = A->Length = len; 
 	A->Sign = sign;
 	A->Flag = flag;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @brief Initialize to Random BIGNUM
- * @details
- * - 메모리 함수 내부에서 할당 \n
- * - 랜덤 BIGNUM 생성 \n
- * - Num, Length, Sign => 모두 랜덤 \n
- * - 단순 TEST용, 난수성 보장 X \n
- * @param[in,out] BIGNUM *A 
- * @param UNWORD maxsize (const)
- * @date 2017. 03. 28. v1.00 \n
- */
-void BN_Init_Rand(BIGNUM *A, const UNWORD maxsize)
-{
-	UNWORD rlen;
-		
-	rlen = (rand() % maxsize) + 1; // 길이 0 없음
-	BN_Init(A, rlen, ZERO, DEFAULT); 
-	BN_Randomize(A);
-	
-	A->Sign = rlen & 1 ? PLUS : MINUS;
-
-	if((rlen == 1) && (A->Num[0] == 0))
-		A->Sign = ZERO; 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,13 +51,13 @@ void BN_Init_Rand(BIGNUM *A, const UNWORD maxsize)
  * - Generate Zero BIGNUM \n
  * - Length = 1, Sign = ZERO, Flag = DEFAULT \n
  * @param[in,out] BIGNUM *A  
- * @date 2017. 03. 28. v1.00 \n
- * @date 2017. 03. 30. v1.01 (Flag) \n
+ * @date 2017. 04. 17. \n
  */
 void BN_Init_Zero(BIGNUM *A)
 {	
 	A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
-	A->Length = 1; 
+	A->Top = 1;			// 실제 배열 크기
+	A->Length = 0; 		// 값 크기
 	A->Sign = ZERO;
 	A->Flag = DEFAULT;
 }
@@ -97,15 +70,39 @@ void BN_Init_Zero(BIGNUM *A)
  * - 값이 1인 BIGNUM 생성 \n
  * - Length = 1, Sign = PLUS, Flag = DEFAULT \n
  * @param[in,out] BIGNUM *A  
- * @date 2017. 04. 08. v1.00 \n
+ * @date 2017. 04. 17. \n
  */
 void BN_Init_One(BIGNUM *A)
 {	
 	A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
 	A->Num[0] = 1;
-	A->Length = 1; 
-	A->Sign = PLUS;
-	A->Flag = DEFAULT;
+	A->Top = A->Length = 1;
+	A->Sign	= PLUS;
+	A->Flag	= DEFAULT;	
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * @brief Initialize to Random BIGNUM
+ * @details
+ * - 메모리 함수 내부에서 할당 \n
+ * - 랜덤 BIGNUM 생성 \n
+ * - Num, Length, Sign => 모두 랜덤 \n
+ * - 단순 TEST용, 난수성 보장 X \n
+ * @param[in,out] BIGNUM *A 
+ * @param UNWORD maxsize (const)
+ * @date 2017. 04. 17. v1.00 \n
+ */
+void BN_Init_Rand(BIGNUM *A, const UNWORD maxsize)
+{
+	UNWORD rlen = (rand() % maxsize) + 1;
+		
+	BN_Init(A, rlen, ZERO, DEFAULT); 
+	BN_Randomize(A);
+	
+	A->Top = A->Length;
+	A->Sign = rlen & 1 ? PLUS : MINUS;
+	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,12 +113,12 @@ void BN_Init_One(BIGNUM *A)
  * - BIGNUM 생성해서 (R <- A) COPY \n
  * @param[in,out] BIGNUM *R
  * @param[in] BIGNUM *A
- * @date 2017. 03. 30. v1.00 \n
+ * @date 2017. 04. 17. \n
  */
 void BN_Init_Copy(BIGNUM *R, const BIGNUM *A)
 {
-	// A 와 크기 같은 BIGNUM 생성
-	BN_Init(R, A->Length, A->Sign, A->Flag);
+	// A 와 배열 크기 같은 BIGNUM 생성
+	BN_Init(R, A->Top, A->Sign, A->Flag);
 	BN_Copy(R, A); // 값 복사
 }
 
@@ -133,13 +130,12 @@ void BN_Init_Copy(BIGNUM *R, const BIGNUM *A)
  * - Length 변경 X \n
  * - 단순 TEST용, 난수성 보장 X \n
  * @param[in,out] BIGNUM *A 
- * @date 2017. 03. 28. v1.00 \n
- * @date 2017. 03. 30. v1.01 (Flag) \n
+ * @date 2017. 04. 17. \n
  */
 void BN_Randomize(BIGNUM *A)
 {
 	UNWORD i, j;	 
-	for(i = 0 ; i < A->Length ; i++)
+	for(i = 0 ; i < A->Top ; i++)
 		for(j = 0 ; j < BIT_LEN ; j++)
 		{
 			A->Num[i] <<= 8;
@@ -148,7 +144,11 @@ void BN_Randomize(BIGNUM *A)
 	A->Sign = (rand() & 1) ? PLUS : MINUS;
 	// 만약 랜덤 생성 값이 0 이면 Sign = ZERO
 	if((A->Length == 1) && (A->Num[0] == 0))
-			A->Sign = ZERO; 
+	{
+		A->Sign = ZERO; 
+		A->Length = 0;
+	}
+	BN_Optimize(A);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,16 +158,18 @@ void BN_Randomize(BIGNUM *A)
  * - BIGNUM 값을 ZERO 로 변경 \n
  * - 메모리 재할당 (크기, 부호 변경), Length = 1 \n
  * @param[in,out] BIGNUM *A 
- * @date 2017. 03. 28. v1.00 \n
- * @date 2017. 03. 29. v1.01 (Flag) \n 
+ * @date 2017. 04. 17. \n
  */
 void BN_Zero(BIGNUM *A)
 {	
 	UNWORD i;
-	for(i = 0 ; i < A->Length ; i++)
+	for(i = 0 ; i < A->Top ; i++)
 		A->Num[i] = 0;
-	A->Num = (UNWORD *)realloc(A->Num, sizeof(UNWORD)); // size = 1
-	A->Length = 1;
+	
+	// 실제 배열 사이즈 = 1, 값 크기 = 0
+	A->Num = (UNWORD *)realloc(A->Num, sizeof(UNWORD)); 
+	A->Top = 1;
+	A->Length = 0;
 	A->Sign = ZERO;		
 }
 
@@ -177,14 +179,16 @@ void BN_Zero(BIGNUM *A)
  * @details 
  * - BIGNUM 값만 ZERO 로 변경 (부호, 크기 변경 X) \n
  * @param[in,out] BIGNUM *A 
- * @date 2017. 03. 28. v1.00 \n
- * @date 2017. 03. 29. v1.01 (Flag) \n 
+ * @date 2017. 04. 17. \n
  */
 void BN_Zeroize(BIGNUM *A)
 {	
 	UNWORD i;
-	for(i = 0 ; i < A->Length ; i++)
+	for(i = 0 ; i < A->Top ; i++)
 		A->Num[i] = 0;
+	
+	A->Length = 0;	
+	A->Sign = ZERO;	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,19 +199,22 @@ void BN_Zeroize(BIGNUM *A)
  * - 내부에서 BIGNUM *A 와 동일한 크기 BIGNUM *R 재할당 \n
  * @param[in,out] BIGNUM *R
  * @param[in] BIGNUM *A (const)
- * @date 2017. 03. 28. v1.00 \n
+ * @date 2017. 04. 17. \n
  */
 void BN_Copy(BIGNUM *R, const BIGNUM *A)
 {
 	SNWORD i;
-	R->Sign = A->Sign;
-	R->Flag = A->Flag;		
-	// *R 크기와 *A 가 다르면 동일한 크기인 0 배열로 재할당
-	if(R->Length != A->Length)
-		BN_Zero_Realloc_Mem(R, A->Length);
+		
+	// *R 배열 크기와 *A 배열 크기가 다르면 동일한 크기인 0 배열로 재할당
+	if(R->Top != A->Top)
+		BN_Zero_Realloc_Mem(R, A->Top);
 	// 값 복사
-	for(i = R->Length ; i > 0 ; i--) 
+	for(i = R->Top ; i > 0 ; i--) 
 		R->Num[i - 1] = A->Num[i - 1];
+	
+	R->Length = A->Length;
+	R->Sign	= A->Sign;
+	R->Flag	= A->Flag;	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,32 +226,30 @@ void BN_Copy(BIGNUM *R, const BIGNUM *A)
  * - BIGNUM *A 메모리를 입력받은 크기와 동일하게 재할당
  * @param[out] BIGNUM *A
  * @param[in] UNWORD size (const)
- * @date 2017. 03. 28. v1.00 \n
- * @date 2017. 04. 04. v1.01 \n
- * @date 2017. 04. 14. v1.02 \n
+ * @date 2017. 04. 17. \n 
  */
 void BN_Realloc_Mem(BIGNUM *A, const UNWORD size)
 {	
 	SNWORD i;
-	if(A->Length > size)
+	if(A->Top > size)
 	{
 		// 입력받은 size 크기 보다 큰 값 0 으로 세팅 후
-		for(i = A->Length ; i > size ; i--)
+		for(i = A->Top ; i > size ; i--)
 			A->Num[i - 1] = 0;
-		A->Length = size;
+		A->Top = size;
 		// 메모리 재할당
-		if(A->Length == 0) // Realloc 에 0 들어가면 안됨
-			A->Length = 1;
-		A->Num = (UNWORD *)realloc(A->Num, (A->Length * sizeof(UNWORD)));
+		if(A->Top == 0) // 혹시나 Realloc 크기에 0 들어가면 안됨
+			A->Top = 1;
+		A->Num = (UNWORD *)realloc(A->Num, (A->Top * sizeof(UNWORD)));
 	}
-	else if(A->Length < size)
+	else if(A->Top < size)
 	{
 		// 메모리만 재할당 (항상 size > 0)
 		A->Num = (UNWORD *)realloc(A->Num, (size * sizeof(UNWORD)));
 		// 재할당 받은 배열 값 0 으로 세팅
-		for(i = size ; i > A->Length ; i--)
+		for(i = A->Top ; i < size ; i++)
 			A->Num[i - 1] = 0;
-		A->Length = size;
+		A->Top = size;
 	}	
 }
 
@@ -256,12 +261,12 @@ void BN_Realloc_Mem(BIGNUM *A, const UNWORD size)
  * - BIGNUM *A 메모리를 입력받은 크기와 동일하게 재할당
  * @param[out] BIGNUM *A
  * @param[in] UNWORD size (const)
- * @date 2017. 03. 30. v1.00 \n
+ * @date 2017. 04. 17. \n
  */
 void BN_Zero_Realloc_Mem(BIGNUM *A, const UNWORD size)
 {	
 	// 입력 받은 크기 만큼 메모리 재할당
-	if(A->Length != size)		
+	if(A->Top != size)
 		BN_Realloc_Mem(A, size);
 	// 재할당된 부분 0 으로 초기화
 	BN_Zeroize(A);	
@@ -269,18 +274,26 @@ void BN_Zero_Realloc_Mem(BIGNUM *A, const UNWORD size)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
- * @brief Optimize Input of BIGNUM *A
+ * @brief Top Check of BIGNUM *A
  * @details
- * - BIGNUM *A 값의 크기 최적화 입력 (Memory, Length) \n
- * - 예상 결과 크기와 메모리 크기가 다르면 메모리 재할당 \n
+ * - BIGNUM *A 입력 값의 배열 크기 최적화 \n
+ * - A->Top != A->Length 인 경우 메모리 재할당 (A->Top == A->Length) \n
+ * - BIGNUM *A 가 빈 배열이면 메모리 할당
  * @param[in, out] BIGNUM *A
- * @param[in] UNWORD size (const)
- * @date 2017. 04. 14. v1.00 \n
+ * @date 2017. 04. 17. \n
+ * @todo 경우 더 생각해보기
  */
-void BN_Optimize_In(BIGNUM *A, const UNWORD size)
-{
-	if(A->Length != size)
-		BN_Zero_Realloc_Mem(A, size);
+void BN_Top_Check(BIGNUM *A)
+{	
+	// TODO 
+
+	// BIGNUM *A 의 메모리가 할당되지 않은 경우
+	if((A->Top == 0) || (A->Top == NULL))
+		BN_Init_Zero(A);
+	
+	// 실제 할당된 배열 크기와 값이 들어있는 배열 크기 다르면 재할당
+	if((A->Top != A->Length) && (A->Length != 0))
+		BN_Realloc_Mem(A, A->Length);	
 }
 
 /**
@@ -290,47 +303,45 @@ void BN_Optimize_In(BIGNUM *A, const UNWORD size)
  * - BIGNUM *A 가 0 인 경우 *A 의 Sign = ZERO
  * - 최상위 WORD 부터 값이 0 인지 체크
  * @param[in, out] BIGNUM *A
- * @date 2017. 03. 28. v1.00 \n
- * @date 2017. 04. 04. v1.01 \n
+ * @date 2017. 04. 17. \n
+ * @todo 경우 더 생각해보기
  */
-void BN_Optimize_Out(BIGNUM *A)
+void BN_Optimize(BIGNUM *A)
 {
-	UNWORD tmp_len = A->Length;
-	// Length가 1 이상이고, 최상위 WORD 값이 0 인 경우 재할당
-	while(A->Num[tmp_len - 1] == 0)
-	{
-		if(tmp_len > 1) 
-			tmp_len--;
-		else // A->Length <= 1 일 때
-			break;
-	}
-	if(A->Length != tmp_len)
-		BN_Realloc_Mem(A, tmp_len);
+	// TODO
+	
+	// 빈 배열 체크
+	while(A->Num[A->Length - 1] == 0)
+		A->Length--;
 
-	// 길이 0 존재 X
-	if(A->Length == 0)
-		A->Length = 1;
-
-	// A->Length = 1 , A-Num[0] = 0 인 경우 Sign = ZERO 변경
+	// 실제 할당된 배열 크기와 값이 들어있는 배열 크기 다르면 재할당
+	if((A->Top != A->Length) && (A->Top != 0))
+		BN_Realloc_Mem(A, A->Length);
+	
+	//실제 *A 에 저장된 값이 0 인 경우  
 	if((A->Length == 1) && (A->Num[0] == 0))
+	{	
+		A->Length = 0;
 		A->Sign = ZERO; 
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Free BIGNUM Memory
  * @details
- * - BIGNUM Num WORD 동적할당 해제
- * - 0 초기화 없이 단순 메모리 할당 해제
- * - BIGNUM 이 Free 된 상태 => Length = 0 , Sign = 0, Flag = 0
+ * - BIGNUM WORD 배열 동적할당 해제 \n
+ * - 0 초기화 없이 단순 메모리 할당 해제 \n
+ * - Num = NULL, Top = 0, Length = 0 , Sign = 0, Flag = 0 \n
  * @param[in,out] BIGNUM *A 
- * @date 2017. 03. 28. v1.00 \n
- * @date 2017. 03. 30. v1.01 (Flag) \n
+ * @date 2017. 04. 17. \n
  */
 void BN_Free(BIGNUM *A)
 {
 	free(A->Num);
-	A->Length = ZERO;
+	A->Num = NULL;
+	A->Top = 0;
+	A->Length = 0;
 	A->Sign = ZERO;
 	A->Flag = DEFAULT;
 }
@@ -339,26 +350,21 @@ void BN_Free(BIGNUM *A)
 /**
  * @brief Zero Free BIGNUM Memory
  * @details
- * - BIGNUM Num WORD 동적할당 해제
- * - 값을 0 으로 초기화 한 후 메모리 할당 해제
- * - BIGNUM 이 Free 된 상태 => Length = 0 , Sign = 0, Flag = 0
+ * - BIGNUM WORD 배열 동적할당 해제 \n
+ * - 값을 0 으로 초기화 한 후 메모리 할당 해제 \n
+ * - Num = NULL, Top = 0, Length = 0 , Sign = 0, Flag = 0 \n
  * @param[in,out] BIGNUM *A 
- * @date 2017. 03. 28. v1.00 \n
- * @date 2017. 03. 30. v1.01 (Flag) \n 
+ * @date 2017. 04. 17. \n
  */
 void BN_Zero_Free(BIGNUM *A)
 {
-	while(A->Length > 0)
+	while(A->Top > 0)
 	{
-		A->Num[(A->Length - 1)] = 0;
-		A->Length--;
+		A->Num[(A->Top - 1)] = 0;
+		A->Top--;
 	}
-	free(A->Num);
-	A->Length = ZERO;
-	A->Sign = ZERO;
-	A->Flag = DEFAULT;
+	BN_Free(A);
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -366,55 +372,62 @@ void BN_Zero_Free(BIGNUM *A)
  * @details
  * - BIGNUM *A 오른쪽으로 n 비트 시프트 \n
  * - 외부에서 결과 값 저장 할 BIGNUM *R 생성해서 입력 \n
+ * - BN_RShift_Bit(R, R, s_bit) 가능
  * @param[out] BIGNUM *R 
- * @param[in] BIGNUM *A (const)
+ * @param[in] BIGNUM *A 
  * @param[in] s_bit (const) // shift bit
- * @date 2017. 04. 13. v1.00 \n
+ * @date 2017. 04. 17. \n
  * @todo sage 에서 음수 일 때 쉬프트 문제...
  */
-void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
+void BN_RShift_Bit(BIGNUM *R, BIGNUM *A, const UNWORD s_bit)
 {
 	UNWORD i;
 	UNWORD tmp_word;
 	UNWORD tmp_bit = s_bit;
-		
-	if(s_bit > (A->Length * BIT_LEN))
+
+	BN_Top_Check(A);
+
+	// R 크기 확인
+	// R = A 인 경우 재할당 X , Ex) BN_RShift_Bit(R, R, shift);
+	if(R->Top != A->Top) 
+		BN_Zero_Realloc_Mem(R, A->Top); // R 최소 크기 = A->Top
+
+	// Right Shift 값이 현재 할당된 배열 보다 크면 결과는 0
+	if(s_bit > (A->Top * BIT_LEN))
 		BN_Zero(R);
 	else
 	{
-		// R 길이 조정
-		BN_Optimize_In(R, A->Length);
-		R->Sign = A->Sign;
-		R->Flag = A->Flag;
-
-		if(tmp_bit >= BIT_LEN) // s_bit >= BIT_LEN (워드 이동)
+		if(s_bit >= BIT_LEN) // s_bit >= BIT_LEN (워드 이동)
 		{
-			tmp_word = UW_Div(tmp_bit, BIT_LEN);	// Move word
-			tmp_bit = UW_Mod(tmp_bit, BIT_LEN);		// New shift bits
+			tmp_word = UW_Div(s_bit, BIT_LEN);	// Move word
+			tmp_bit = UW_Mod(s_bit, BIT_LEN);		// New shift bits
 			// WORD 이동
-			for(i = 0 ; i < A->Length - tmp_word ; i++)
+			for(i = 0 ; i < A->Top - tmp_word ; i++)
 				R->Num[i] = A->Num[i + tmp_word];
 			// 이동된 나머지 WORD = 0 채우기
-			for( ; i < A->Length ; i++)
+			for( ; i < A->Top ; i++)
 				R->Num[i] = 0;
 		}
 		else
 		{
-			for(i = 0 ; i < A->Length ; i++)
+			for(i = 0 ; i < A->Top ; i++)
 				R->Num[i] = A->Num[i];
 		}
 		
-		if(tmp_bit != 0) // tmp_bit == 0 인 경우 WORD 이동만 필요
+		if(tmp_bit != 0) // tmp_bit == 0 인 경우 WORD 이동만
 		{
 			// s_bit < BIT_LEN 인 상태 
-			for(i = 0 ; i < (R->Length - 1) ; i++) 
+			for(i = 0 ; i < (R->Top - 1) ; i++) 
 				R->Num[i] = (R->Num[i + 1] << (BIT_LEN - tmp_bit)) ^ (R->Num[i] >> tmp_bit);
-			// 최상위 WORD 처리 (i = A->Num[A->Length - 1] 일 때)
+			// 최상위 WORD 처리 (i = A->Num[A->Top - 1] 일 때)
 			R->Num[i] >>= tmp_bit;
-		}		
+		}
 
-		if(A->Flag == OPTIMIZE)
-			BN_Optimize_Out(R);	
+		A->Length = 0;		
+
+		BN_Optimize(R);
+		R->Sign = A->Sign;
+		R->Flag = A->Flag;
 	}
 }
 
@@ -479,7 +492,7 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
 	}
 		
 	if(A->Flag == OPTIMIZE)
-		BN_Optimize_Out(R);
+		BN_Optimize(R);
 
 }
 
@@ -495,14 +508,15 @@ void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit)
  * @param[in] BIGNUM *B (const)
  * @return LARGE(1), EQUAL(0), SMALL(-1)
  * @date 2017. 03. 28. v1.00 \n
+ * @todo input optimize 문제 
  */
-SNWORD BN_Abs_Cmp(BIGNUM *A, BIGNUM *B)
+SNWORD BN_Abs_Cmp(const BIGNUM *A, const BIGNUM *B)
 {
 	SNWORD i;
 
 	// 빈 배열 체크 
-	BN_Optimize_Out(A);
-	BN_Optimize_Out(B);
+	//BN_Optimize(A);
+	//BN_Optimize(B);
 	
 	// 1) A 와 B 의 WORD Length(개수) 같을 때
 	if(A->Length == B->Length)
@@ -531,7 +545,7 @@ SNWORD BN_Abs_Cmp(BIGNUM *A, BIGNUM *B)
  * @return LARGE(1), EQUAL(0), SMALL(-1)
  * @date 2017. 03. 28. v1.00 \n
  */
-SNWORD BN_Cmp(BIGNUM *A, BIGNUM *B)
+SNWORD BN_Cmp(const BIGNUM *A, const BIGNUM *B)
 {	
 	// A, B Sign 다를 때
 	if(A->Sign != B->Sign)
@@ -559,7 +573,7 @@ void BN_Print_hex(const BIGNUM *A)
 {
 	SNWORD i;
 	
-	printf("%s0x", (A->Sign == -1) ? "-" : "");
+	printf("%s0x", (A->Sign == -1) ? "-" : "+");
 	for(i = A->Length ; i > 0 ; i--)
 		printf("%08X", A->Num[i - 1]);
 }
@@ -577,7 +591,7 @@ void BN_Print_hex(const BIGNUM *A)
 void BN_FPrint_hex(FILE *fp, const BIGNUM *A)
 {
 	SNWORD i;
-	fprintf(fp, "%s0x", (A->Sign == -1) ? "-" : "");
+	fprintf(fp, "%s0x", (A->Sign == -1) ? "-" : "+");
 	for(i = A->Length ; i > 0 ; i--)
 		fprintf(fp, "%08X", A->Num[i - 1]);
 }
@@ -625,7 +639,7 @@ void BN_Bin_GCD(BIGNUM *R, const BIGNUM *a, const BIGNUM *b)
 		else
 			BN_Sub(&v, &v, &u);
 
-		BN_Optimize_Out(&u);
+		BN_Optimize(&u);
 	}
 
 	
@@ -785,8 +799,6 @@ void BN_Ext_Inv(BIGNUM *x, const BIGNUM *a, const BIGNUM *p)
 
 }
 
-// Bignum Opertation
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Absolute Add BIGNUM *A and BIGNUM *B
@@ -799,7 +811,6 @@ void BN_Ext_Inv(BIGNUM *x, const BIGNUM *a, const BIGNUM *p)
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
  * @date 2017. 03. 28. v1.00 \n
- * @todo A>=B 가 아닐 때 예외 처리
  */
 void BN_Abs_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {	
@@ -807,12 +818,10 @@ void BN_Abs_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 	UNWORD carry = 0;		// 초기 Carry = 0
 	UNWORD tmp1, tmp2;
 	
-	// 연산 결과 최대값 설정	
-	if(A->Length > B->Length)
-		BN_Optimize_In(R, A->Length + 1);
-	else
-		BN_Optimize_In(R, B->Length + 1);
-	
+	//// R 크기가 |A| + |B| 결과보다 작으면 재할당 
+	if(R->Length < (A->Length + 1))
+		BN_Realloc_Mem(R, (A->Length + 1));	
+
 	for(i = 0 ; i < B->Length ; i++) 
 	{
 		tmp1 = (A->Num[i] + carry) & WORD_MASK;
@@ -842,9 +851,9 @@ void BN_Abs_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		for( ; i < A->Length ; i++)
 			R->Num[i] = A->Num[i];
 	
-	R->Sign = A->Sign;
+	R->Sign = PLUS;
 	//// BIGNUM 최적화
-	BN_Optimize_Out(R);	
+	//BN_Optimize(R);	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -859,7 +868,6 @@ void BN_Abs_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
  * @date 2017. 03. 28. v1.00 \n
- * @todo 입력 조건 완성 필요... if(A<B) 이면 ..?
  */
 void BN_Abs_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {	
@@ -867,13 +875,10 @@ void BN_Abs_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 	UNWORD borrow = 0;	// 초기 borrow = 0
 	UNWORD tmp1, tmp2;	
 	
-	/*
-	// 연산 결과 최대값 설정	
-	if(A->Length > B->Length)
-		BN_Optimize_In(R, A->Length + 1);
-	else
-		BN_Optimize_In(R, B->Length + 1);	
-	*/
+	//// R 크기가 |A| - |B| 결과보다 작으면 재할당
+	//if(R->Length < A->Length)
+	//	BN_Realloc_Mem(R, (A->Length));	
+
 	for(i = 0 ; i < B->Length ; i++) 
 	{
 		tmp1 = (A->Num[i] - borrow) & WORD_MASK;
@@ -898,9 +903,9 @@ void BN_Abs_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		for( ; i < A->Length ; i++)
 			R->Num[i] = A->Num[i];	
 
-	R->Sign = A->Sign;
+	R->Sign = PLUS;
 	// BIGNUM 최적화
-	BN_Optimize_Out(R);	
+	BN_Optimize(R);	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -918,9 +923,9 @@ void BN_Abs_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 void BN_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {		
 	// A or B 가 0 인 경우 단순 배열 복사
-	if(((A->Length == 1) && (A->Num[0] == 0)) || (B->Length == 0))
+	if(A->Length == 0)
 		BN_Copy(R, B);
-	else if(((B->Length == 1) && (B->Num[0] == 0)) || (B->Length == 0))
+	else if(B->Length == 0)
 		BN_Copy(R, A);
 	else // A, B 모두 0 이 아닌 경우
 	{
@@ -928,11 +933,12 @@ void BN_Add(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		{
 			//  a +  b =  (a + b)
 			// -a + -b = -(a + b)
+			R->Sign = A->Sign; // 결과 값 R 부호는 A, B 부호와 동일
+
 			if(A->Length >= B->Length)
 				BN_Abs_Add(R, A, B);
 			else // (A->Length < B->Length)
 				BN_Abs_Add(R, B, A);
-			R->Sign = A->Sign; // 결과 값 R 부호는 A, B 부호와 동일
 		}
 		else // A->Sign != B->Sign 인 경우
 		{
@@ -994,6 +1000,7 @@ void BN_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 	}	
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Multiply BIGNUM *A and BIGNUM *B
  * @details
@@ -1005,16 +1012,12 @@ void BN_Sub(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
  * @date 2017. 03. 28. v1.00 \n
- * @date 2017. 04. 15. v1.01 (Optimize input)\n
  */
 void BN_Basic_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {	
 	UNWORD i, j, n;
 	UNWORD carry = 0;
 	UNWORD tmp[2];
-
-	if(R->Length < (A->Length + B->Length))
-		BN_Optimize_In(R, A->Length + B->Length);
 		
 	if((A->Length == 0) || (B->Length == 0)) // A or B 가 0 인 경우
 		BN_Zeroize(R); 
@@ -1060,7 +1063,7 @@ void BN_Basic_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 	R->Sign = (A->Sign * B->Sign);
 
 	// BIGNUM 최적화
-	BN_Optimize_Out(R);			
+	BN_Optimize(R);			
 }
 
 /**
@@ -1074,11 +1077,12 @@ void BN_Basic_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
  * @date 2017. 03. 28. v1.00 \n
+ * @todo TEST Vector 맞춰야 함 / input optimize 조건
  */
 void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {
-	BIGNUM u0, v0, u1, v1;			 // 구조체만 이용 (A 의 Num 사용)
-	BIGNUM us, vs, u0v0, u1v1, usvs, tmp; // BIGNUM 생성해서 이용
+	BIGNUM u0, v0, u1, v1;					// 구조체만 이용 (A 의 Num 사용)
+	BIGNUM us, vs, u0v0, u1v1, usvs, tmp1, tmp2;	// BIGNUM 생성해서 이용
 	
 	UNWORD d, q, p;
 	UNWORD d0 = 1;
@@ -1129,7 +1133,7 @@ void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		BN_Init(&u0v0, (u0.Length + v0.Length), PLUS, DEFAULT);
 		BN_Init(&u1v1, (u1.Length + v1.Length), PLUS, DEFAULT);
 		BN_Init(&usvs, (us.Length + vs.Length), PLUS, DEFAULT);
-		BN_Init(&tmp, (us.Length + vs.Length), PLUS, DEFAULT);
+		BN_Init(&tmp1, (us.Length + vs.Length), PLUS, DEFAULT);
 		
 		// u0 + u1
 		BN_Abs_Add(&us, &u0, &u1);
@@ -1141,14 +1145,16 @@ void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		BN_Kara_Mul(&u1v1, &u1, &v1);
 		// ((usvs - u1v1) - u0v0) = usvs > 0
 		BN_Kara_Mul(&usvs, &us, &vs);
-		BN_Abs_Sub(&tmp, &usvs, &u1v1);
+		BN_Abs_Sub(&tmp1, &usvs, &u1v1);
 		BN_Zeroize(&usvs);
-		BN_Abs_Sub(&usvs, &tmp, &u0v0);
+		BN_Abs_Sub(&usvs, &tmp1, &u0v0);
 
 		// R = (u1v1)^2q + (usvs)^q + u0v0
 		// R += u0v0
+		BN_Zero_Realloc_Mem(&tmp1, u0v0.Length + 1);
+		BN_Init_Zero(&tmp2); 
 		R->Length = u0v0.Length + 1; // carry 고려하여 길이 + 1
-		BN_Abs_Add(R, R, &u0v0);
+		BN_Abs_Add(R, &tmp2, &u0v0);
 		// R += (usvs)^q
 		R->Num += q;
 		R->Length = usvs.Length + 1; 
@@ -1168,8 +1174,8 @@ void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 		BN_Zero_Free(&u0v0);
 		BN_Zero_Free(&u1v1);
 		BN_Zero_Free(&usvs);
-		BN_Zero_Free(&tmp);
-
+		BN_Zero_Free(&tmp1);
+		BN_Zero_Free(&tmp2);
 	}
 	else // d <= KARA_THRESHOLD(d0) 인 경우 기본 Mul 수행
 		BN_Basic_Mul(R, A, B);
@@ -1187,6 +1193,7 @@ void BN_Kara_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
  * @date 2017. 03. 28. v1.00 \n
+ * @todo 조건 필요
  */
 void BN_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 {
@@ -1194,6 +1201,7 @@ void BN_Mul(BIGNUM *R, const BIGNUM *A, const BIGNUM *B)
 	//BN_Basic_Mul(R, A, B);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Square BIGNUM *A 
  * @details
@@ -1212,7 +1220,7 @@ void BN_Sqr(BIGNUM *R, const BIGNUM *A)
 	UNWORD tmp[3];
 	UNWORD m0, m1;
 			
-	if(A->Length == 0) // A 가 0 인 경우
+	if((A->Length == 1 && A->Num[0] == 0) || (A->Length == 0)) // A 가 0 인 경우
 		BN_Zeroize(R); 
 	else if((A->Length == 1) && (A->Num[0] == 1)) // A = 1 or -1 인 경우
 		BN_Copy(R, A);
@@ -1280,84 +1288,95 @@ void BN_Sqr(BIGNUM *R, const BIGNUM *A)
 	R->Sign = PLUS;
 	
 	// BIGNUM 최적화
-	BN_Optimize_Out(R);	
+	BN_Optimize(R);	
 }
 
 /**
  * @brief Barret Reduction of BIGNUM (Modulus)
  * @details
- * - 
- * - Guide to ECC p.36 참고 \n
+ * - A mod N ,where 0 <= A < W^(2n), W^(n-1) <= N < W^n and T = Ceil((W^2n) / M) \n
+ * - Lecture Note 참고 \n
  * @param[out] BIGNUM *R 
- * @param[in] BIGNUM *Z (const)
- * @param[in] BIGNUM *P (const)
- * @param[in] BIGNUM *MU (const)
+ * @param[in] BIGNUM *A (const)
+ * @param[in] BIGNUM *N (const)
+ * @param[in] BIGNUM *T (const & Precomputation)
  * @date 2017. 03. 29. v1.00 \n
  * @todo 아직 미완성
  */
-void BN_Bar_Redc(BIGNUM *R, const BIGNUM *Z, const BIGNUM *P, const BIGNUM *MU)
+void BN_Bar_Redc(BIGNUM *R, const BIGNUM *A, const BIGNUM *N, const BIGNUM *T)
 {	
-	BIGNUM qh, qh_p, s_tmp;	// BN_Init() 필요 
-	BIGNUM tmp;				// BIGNUM 주소만 활용
-	UNWORD k;
+	BIGNUM qh, qh_n;				
+	BIGNUM tmp1, tmp2;				
+	UNWORD W = BIT_LEN;		// W = 2^(w), W : WORD 1개 크기 or 프로세서 단위 
+	UNWORD n = N->Length;	// n = Ceil(log_W(N)) + 1
 	
 	// 확인사항
 	// Input 조건 따져줘야 하나 ? -> P >= 3 
 	// Z == P 인 경우는 ??
+	// R 크기 문제
 	// Reduction 결과 최적화 문제 ?
 
 	// BIGNUM 연산 최대 크기 고려
-	BN_Init(&qh, 0, ZERO, DEFAULT); // 크기 수정
-	BN_Init(&qh_p, 0, ZERO, DEFAULT);
 	
-
-	// Z < P 인 경우 -> Reduction 필요 X
-	if(BN_Abs_Cmp(Z, P) == SMALL)
-		BN_Copy(R, Z); 
-	else // Z > P 인 경우 Reduction 수행
-	{
-		// b = 2^(L), L : WORD 크기 or 프로세서 단위
-		k = P->Length;	// k = Ceil(log_b(P)) + 1 
+	
+	// A < N 인 경우 -> Reduction 필요 X
+	if(BN_Abs_Cmp(A, N) == SMALL)
+		BN_Copy(R, A); 
+	else // A > N 인 경우 Reduction 수행
+	{	
+		// tmp1 = Ceil(A / W^(n-1)) 계산 (워드 단위 >> 쉬프트 연산)
+		tmp1.Num = A->Num + (n - 1); // 기준 포인터 위치 변경
+		tmp1.Length = A->Length - (n - 1); 
+		tmp1.Sign = PLUS; 
 		
-		// Ceil(Z / b^(k-1)) 계산 (워드 단위 >> 연산)
-		tmp.Num = Z->Num + k - 1; // 기준 포인터 위치 변경
-		tmp.Length = Z->Length - k + 1; 
-		tmp.Sign = Z->Sign; // 항상 Z > 0
-				
-		BN_Mul(&qh, &tmp, MU);
-		// Ceil(qh / b^(k+1)) 계산 (워드 단위 >> 연산)
-		qh.Num += (k + 1); 
-		qh.Length -= (k + 1);
+		// Ceil(A / W^(n-1)) * T
+		BN_Init(&qh, (tmp1.Length + T->Length), PLUS, DEFAULT); 
+		BN_Mul(&qh, &tmp1, T);
 
-		// Z mod b^(k+1) -> k + 1 보다 작은 배열만 살림
-		tmp.Num = Z->Num;
-		tmp.Length = k;
+		// Ceil(qh / W^(n+1)) 계산 (워드 단위 >> 쉬프트 연산)
+		qh.Num += (n + 1); 
+		qh.Length -= (n + 1);
+
+		// A mod W^(n+1) : n + 1 보다 작은 배열만 살림
+		tmp1.Num = A->Num;
+		tmp1.Length = n; // mod
 		
-		// (qh * P) mod b^(k+1)
-		BN_Mul(&qh_p, &qh, P);
-		if(qh_p.Length > k)  
-			qh_p.Length = k;
+		// (N * qh) mod W^(n+1)
+		BN_Init(&qh_n, (qh.Length + N->Length), PLUS, DEFAULT);
+		BN_Mul(&qh_n, &qh, N);
+		if(qh_n.Length > n)  
+			qh_n.Length = n; // mod
 
-		// Z mod b^(k+1) - (qh * P) mod b^(k+1)
-		BN_Sub(R, &tmp, &qh_p);
+		// A mod W^(n+1) - (qh * N) mod W^(n+1)
+		BN_Init(&tmp2, n, PLUS, DEFAULT);
+		BN_Sub(&tmp2, &tmp1, &qh_n); // tmp2 = R
 		
-		// R 이 음수 -> R = R + b^(k+1)
-		if(R->Sign == MINUS)
-		{
-			BN_Init(&s_tmp, k + 1, ZERO, DEFAULT); // (k+1) 개 s_tmp.Num 배열 -> 0 초기화
-			s_tmp.Num[k + 1] = 1;	// b^(k+1) ex) 0x10..0
-			s_tmp.Sign = PLUS;
-
-			BN_Add(R, &s_tmp, R);
+		BN_Init(&tmp1, n + 1, PLUS, DEFAULT);		// n 개 tmp1.Num 배열 -> 0 으로 초기화
+		// R 이 음수 -> A += W^(n+1)
+		if(tmp2.Sign == MINUS)
+		{			
+			tmp1.Num[n - 1] = 1;					// 최상위 워드 = 1 : W^(n+1) ex) 0x10..0 
+			BN_Add(R, &tmp2, &tmp1);
+			if(BN_Abs_Cmp(R, N) != MINUS) // 아래 while문 때문에 추가
+				BN_Copy(&tmp2, R); 
 		}
-		// R >= p 이면 -> R - p 반복
-		while(BN_Abs_Cmp(R, P) != MINUS)
-			BN_Sub(R, R, P);		
+		// R >= N 이면 -> R - N 반복 (최대 2번)
+		while(BN_Abs_Cmp(&tmp2, N) != MINUS)
+		{
+			BN_Sub(R, &tmp2, N);
+			if(BN_Abs_Cmp(R, N) != MINUS) // 조건 만족하면 while문 한 번 더 반복
+				BN_Copy(&tmp2, R);
+		}
+		
 	}
 
-	// BN_Free() or BN_Zero_Free() ? 
 	BN_Zero_Free(&qh);
-	BN_Zero_Free(&qh_p);		
+	BN_Zero_Free(&qh_n);		
+	BN_Zero_Free(&tmp1);
+	BN_Zero_Free(&tmp2);
+
+	// output optimize
+
 }
 
 /**
@@ -1395,7 +1414,7 @@ void BN_Mont_Redc(BIGNUM *T, const BIGNUM *N, const BIGNUM *R, const UNWORD Np, 
 
 		BN_ADD(&t, &t, knb);
 		
-		// 기존 위치로 복귀
+		// 기	존 위치로 복귀
 		t.Num -= i;
 		t.Length += i;
 	}

@@ -6,17 +6,18 @@
 // STRUCT
 typedef struct _BIGNUM
 {
-    UNWORD	*Num;
-	UNWORD	Length;
-	SNWORD	Sign; 
-	SNWORD	Flag; // Optimization Option (default = 0)
+    UNWORD	*Num;		// BIGNUM Value
+	UNWORD 	Top;		// Allocated array Size (1 ~ )
+	UNWORD	Length;		// Value Size (0 ~ )
+	SNWORD	Sign; 		// Sign (PLUS, ZERO, MINUS)
+	SNWORD	Flag;		// Option (DEFAULT, OPTIMIZE)
 }BIGNUM;
 
 // Define Function 
 void BN_Init(BIGNUM *A, const UNWORD len, const SNWORD sign, const SNWORD flag);	// done
-void BN_Init_Rand(BIGNUM *A, const UNWORD maxsize);									// done
 void BN_Init_Zero(BIGNUM *A);														// done	
 void BN_Init_One(BIGNUM *A);														// done
+void BN_Init_Rand(BIGNUM *A, const UNWORD maxsize);									// done
 void BN_Init_Copy(BIGNUM *R, const BIGNUM *A);										// done
 
 void BN_Randomize(BIGNUM *A);														// done
@@ -26,18 +27,18 @@ void BN_Copy(BIGNUM *R, const BIGNUM *A);											// done
 
 void BN_Realloc_Mem(BIGNUM *A, const UNWORD size);									// done
 void BN_Zero_Realloc_Mem(BIGNUM *A, const UNWORD size);								// done
-void BN_Optimize_In(BIGNUM *A, const UNWORD size);									// done
-void BN_Optimize_Out(BIGNUM *A);													// done
+void BN_Top_Check(BIGNUM *A);														// 
+void BN_Optimize(BIGNUM *A);														// done
 
 void BN_Free(BIGNUM *A);															// done
 void BN_Zero_Free(BIGNUM *A);														// done
 
-void BN_RShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit);
+void BN_RShift_Bit(BIGNUM *R, BIGNUM *A, const UNWORD s_bit);
 void BN_LShift_Bit(BIGNUM *R, const BIGNUM *A, const UNWORD s_bit);
 
 
-SNWORD BN_Abs_Cmp(BIGNUM *A, BIGNUM *B);
-SNWORD BN_Cmp(BIGNUM *A, BIGNUM *B);
+SNWORD BN_Abs_Cmp(const BIGNUM *A, const BIGNUM *B);
+SNWORD BN_Cmp(const BIGNUM *A, const BIGNUM *B);
 
 // Print Function
 void BN_Print_hex(const BIGNUM *A);									
