@@ -60,9 +60,74 @@ UNWORD UW_Mod(const UNWORD a, const UNWORD wlen)
  * @date 2017. 03. 28. v1.00 \n
  * @todo 미완
  */
+ /*
 UNWORD UW_MSB(const UNWORD a)
 {	
-	UNWORD msb;
+	//UNWORD msb;
+}
+*/
+
+void UW_BitSearch(UNWORD *msb_bit, const UNWORD A) 
+{
+	SNWORD i=7;
+	UNWORD temp_A;
+
+	temp_A = A;
+
+	if((temp_A&WORD_MASK_H)!=0)
+	{
+		if((temp_A&WORD_MASK_H_H)!=0)
+		{
+			while(i>=0)
+			{
+				if(((temp_A>>i)&WORD_MASK_H_H)!=0)
+				{
+					*msb_bit = 8*3 + i;
+					break;
+				}
+				i--;
+			}
+		}
+		else
+		{
+			while(i>=0)
+			{
+				if(((temp_A>>i)&WORD_MASK_H_L)!=0)
+				{
+					*msb_bit = 8*2 + i;
+					break;
+				}
+				i--;
+			}
+		}		
+	}
+	else 
+	{
+		if((temp_A&WORD_MASK_L_H)!=0)
+		{
+			while(i>=0)
+			{
+				if(((temp_A>>i)&WORD_MASK_L_H)!=0)
+				{
+					*msb_bit = 8 + i;
+					break;
+				}
+				i--;
+			}
+		}
+		else
+		{
+			while(i>=0)
+			{
+				if(((temp_A>>i)&WORD_MASK_L_L)!=0)
+				{
+					*msb_bit = i;
+					break;
+				}
+				i--;
+			}
+		}		
+	}
 }
 
 /**

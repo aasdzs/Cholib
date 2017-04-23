@@ -14,3 +14,13 @@ SNINT main ()
 
 #endif
 
+// TEST function
+#if 0
+SNINT main ()
+{
+	
+	
+	return 0;
+}
+#endif
+

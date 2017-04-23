@@ -40,12 +40,19 @@ typedef				float	FLOAT;
 #define WORD_MASK		0xFFFFFFFF
 #define WORD_MASK_H		0xFFFF0000
 #define WORD_MASK_L		0x0000FFFF
+#define WORD_MASK_H_H	0xFF000000
+#define WORD_MASK_H_L	0x00FF0000
+#define WORD_MASK_L_H	0x0000FF00
+#define WORD_MASK_L_L	0x000000FF
 #define WORD_MASK_MSB	0x80000000
 #define WORD_MASK_LSB	0x00000001
 #endif
 
 #define SUCCESS		1
 #define FAILURE	   -1
+
+#define TRUE        1
+#define FALSE       0
 
 #define PLUS	    1
 #define	ZERO		0

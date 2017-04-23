@@ -7,7 +7,7 @@
 void UW_Mul(UNWORD *r, const UNWORD a, const UNWORD b);
 void UW_Mul2(UNWORD *r, const UNWORD a, const UNWORD b);
 void UW_Sqr(UNWORD *r, const UNWORD a);
-//void BN_UW_Mul(BIGNUM *R, BIGNUM *A, const UNWORD b);
+void UW_BitSearch(UNWORD *msb_bit, const UNWORD A) ;
 
 UNWORD UW_Div(const UNWORD a, const UNWORD wlen);
 UNWORD UW_Mod(const UNWORD a, const UNWORD wlen);

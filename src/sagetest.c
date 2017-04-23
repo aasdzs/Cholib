@@ -937,31 +937,9 @@ void Sage_Test_BIGNUM()
 	BN_Zero_Free(&a);
 	BN_Zero_Free(&r);
 #endif 
-#if 1
+#if 0
 // void BN_Bar_Redc(BIGNUM *R, const BIGNUM *Z, const BIGNUM *P, const BIGNUM *MU)
-	BIGNUM a, r;
-	UNWORD sft;
-	FILE *fp;
-	fopen_s(&fp, "BN_Sqr.txt", "at");
-	// DEFAULT
-	BN_Init_Rand(&a, 4);
-	BN_Init(&r, 8, PLUS, DEFAULT);
-	printf("hex((");
-	fprintf(fp, "hex((");
-	BN_Print_hex(&a);
-	BN_FPrint_hex(fp, &a);
-	printf(")^2 ");
-	fprintf(fp, ")^2 ");
-	printf(") == hex(");
-	fprintf(fp, ") == hex(");
-	BN_Sqr(&r, &a);								
-	BN_Print_hex(&r);
-	BN_FPrint_hex(fp, &r);
-	printf(")\n");
-	fprintf(fp, ")\n");
-	fclose(fp);
-	BN_Zero_Free(&a);
-	BN_Zero_Free(&r);
+	
 #endif 
 
 

@@ -7,14 +7,14 @@
  * - Zeroize
  * - Randomize
  * - Free
- * - Reaalocation
+ * - Reallocation
  * - Compare
  * - Copy
  * - Addition
  * - Multiplication
  * - Modular
  * - inversion
- * @date 2017. 04. 05.
+ * @date 2017. 04. 20.
  * @author YoungJin CHO
  * @version 1.00
  */
@@ -30,13 +30,52 @@
  * @param[in,out] GF2N *A 
  * @param[in] UNWORD len (const) 길이
  * @param[in] SNWORD flag (const) 최적화 옵션
- * @date 2017. 04. 05. v1.00 \n
+ * @date 2017. 04. 20. \n
  */
 void GF2N_Init(GF2N *A, const UNWORD len, const SNWORD flag)
 {
 	A->Num = (UNWORD *)calloc(len, sizeof(UNWORD)); 
-	A->Length = len; 
+	A->Top = A->Length = len; 
+	A->Sign = PLUS;	// Default (PLUS)
 	A->Flag = flag;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * @brief Initialize to Zero GF2N
+ * @details
+ * - 메모리 함수 내부에서 할당 \n
+ * - Generate Zero GF2N \n
+ * - Length = 1, Sign = ZERO, Flag = DEFAULT \n
+ * @param[in,out] GF2N *A  
+ * @date 2017. 04. 20. \n
+ */
+void GF2N_Init_Zero(GF2N *A)
+{	
+    A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
+	A->Top = 1;			// 실제 할당된 배열 크기
+	A->Length = 0; 		// 값이 들어있는 배열 크기
+	A->Sign = ZERO;
+	A->Flag = DEFAULT;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * @brief Initialize to value 1 of GF2N
+ * @details
+ * - 메모리 함수 내부에서 할당 \n
+ * - 값이 1인 GF2N 생성 \n
+ * - Length = 1, Sign = PLUS, Flag = DEFAULT \n
+ * @param[in,out] GF2N *A  
+ * @date 2017. 04. 20. \n
+ */
+void GF2N_Init_One(GF2N *A)
+{	
+	A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
+	A->Num[0] = 1;
+	A->Top = A->Length = 1; 
+	A->Sign = PLUS;
+	A->Flag = DEFAULT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,49 +88,13 @@ void GF2N_Init(GF2N *A, const UNWORD len, const SNWORD flag)
  * - 단순 TEST용, 난수성 보장 X \n
  * @param[in,out] GF2N *A 
  * @param UNWORD maxsize (const)
- * @date 2017. 03. 28. v1.00 \n
+ * @date 2017. 04. 20. \n
  */
 void GF2N_Init_Rand(GF2N *A, const UNWORD maxsize)
 {
-	UNWORD rlen;
-	rlen = (rand() % maxsize) + 1; // 길이 0 없음
+	UNWORD rlen = (rand() % maxsize) + 1; 
 	GF2N_Init(A, rlen, DEFAULT); 
 	GF2N_Randomize(A);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @brief Initialize to Zero GF2N
- * @details
- * - 메모리 함수 내부에서 할당 \n
- * - Generate Zero GF2N \n
- * - Length = 1, Flag = DEFAULT \n
- * @param[in,out] GF2N *A  
- * @date 2017. 04. 07. v1.00 \n
- */
-void GF2N_Init_Zero(GF2N *A)
-{	
-    A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
-	A->Length = 1; 
-	A->Flag = DEFAULT;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @brief Initialize to value 1 of GF2N
- * @details
- * - 메모리 함수 내부에서 할당 \n
- * - 값이 1인 GF2N 생성 \n
- * - Length = 1, Flag = DEFAULT \n
- * @param[in,out] GF2N *A  
- * @date 2017. 04. 08. v1.00 \n
- */
-void GF2N_Init_One(GF2N *A)
-{	
-	A->Num = (UNWORD *)calloc(1, sizeof(UNWORD));
-	A->Num[0] = 1;
-	A->Length = 1; 
-	A->Flag = DEFAULT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -119,8 +122,7 @@ void GF2N_Init_Copy(GF2N *R, const GF2N *A)
  * - Length 변경 X \n
  * - 단순 TEST용, 난수성 보장 X \n
  * @param[in,out] GF2N *A 
- * @date 2017. 04. 12. v1.00 \n
- * @todo 수정 요망
+ * @date 2017. 04. 20. \n
  */
 void GF2N_Randomize(GF2N *A)
 {
@@ -131,6 +133,7 @@ void GF2N_Randomize(GF2N *A)
 			A->Num[i] <<= 8;
 			A->Num[i] ^= rand() ;
 		}
+	GF2N_Optimize(A);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,32 +143,30 @@ void GF2N_Randomize(GF2N *A)
  * - GF2N *A 를 ZERO 로 변경 \n
  * - 메모리 재할당 (크기 변경), Length = 1 \n
  * @param[in,out] GF2N *A 
- * @date 2017. 04. 07. v1.00 \n
- * @date 2017. 04. 14. v1.01 \n
+ * @date 2017. 04. 20. \n
  */
 void GF2N_Zero(GF2N *A)
 {	
-	UNWORD i;
-	for(i = 0 ; i < A->Length ; i++)
-		A->Num[i] = 0;
-	A->Num = (UNWORD *)realloc(A->Num, sizeof(UNWORD)); // size = 1
-    A->Length = 1;
+	GF2N_Zeroize(A);
+	A->Num = (UNWORD *)realloc(A->Num, sizeof(UNWORD)); 
+    A->Top = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * @brief Zeroize GF2N
  * @details 
- * - GF2N 값만 ZERO 로 변경 (크기 변경 X) \n
+ * - GF2N 값만 0 으로 변경 (Top, Flag 변경 X) \n
  * @param[in,out] GF2N *A 
- * @date 2017. 04. 07. v1.00 \n
- * @date 2017. 04. 14. v1.01 \n
+ * @date 2017. 04. 20. \n
  */
 void GF2N_Zeroize(GF2N *A)
 {	
 	UNWORD i;
-	for(i = 0 ; i < A->Length ; i++)
+	for(i = 0 ; i < A->Top ; i++)
 		A->Num[i] = 0;	
+	A->Length = 0;
+	A->Sign = ZERO;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -180,13 +181,16 @@ void GF2N_Zeroize(GF2N *A)
 void GF2N_Copy(GF2N *R, const GF2N *A)
 {
 	SNWORD i;
-	R->Flag = A->Flag;
 	// *R 크기와 *A 가 다르면 동일한 크기인 0 배열로 재할당
-	if(R->Length != A->Length)
+	if(R->Top != A->Top)
 		GF2N_Zero_Realloc_Mem(R, A->Length);
-	// 값 복사
-	for(i = R->Length ; i > 0 ; i--) 
+	// 값 복사 (R->Top = A->Top 상태)
+	for(i = R->Top ; i > 0 ; i--) 
 		R->Num[i - 1] = A->Num[i - 1];
+	// 나머지 복사
+	R->Length = A->Length;
+	R->Sign	= A->Sign;
+	R->Flag	= A->Flag;	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -198,32 +202,30 @@ void GF2N_Copy(GF2N *R, const GF2N *A)
  * - GF2N *A 메모리를 입력받은 크기와 동일하게 재할당 \n
  * @param[out] GF2N *A
  * @param[in] UNWORD size (const)
- * @date 2017. 04. 05. v1.00 \n
- * @date 2017. 04. 14. v1.01 \n
+ * @date 2017. 04. 20. v1.00 \n
  */
 void GF2N_Realloc_Mem(GF2N *A, const UNWORD size)
 {	
-	SNWORD i;
-	if(A->Length > size)
+	UNWORD i;	
+	if(size == 0)
+		GF2N_Zero(A);
+	else if(A->Top > size)
 	{
-		// 입력받은 size 크기 보다 큰 값 0 으로 세팅 후
-		for(i = A->Length ; i > size ; i--)
+		// 입력받은 size 크기 보다 큰 값들을 0 으로 세팅 후
+		for(i = A->Top ; i > size ; i--)
 			A->Num[i - 1] = 0;
-		A->Length = size;
-		// 메모리 재할당
-		if(A->Length == 0) // Realloc 에 0 들어가면 안됨
-			A->Length = 1;
-		A->Num = (UNWORD *)realloc(A->Num, (A->Length * sizeof(UNWORD)));
+		A->Top = A->Length = size;
+		A->Num = (UNWORD *)realloc(A->Num, (A->Top * sizeof(UNWORD)));
 	}
-	else if(A->Length < size)
+	else if(A->Top < size)
 	{
 		// 메모리만 재할당 (항상 size > 0)
 		A->Num = (UNWORD *)realloc(A->Num, (size * sizeof(UNWORD)));
 		// 재할당 받은 배열 값 0 으로 세팅
-		for(i = size ; i > A->Length ; i--)
+		for(i = A->Top ; i < size ; i++)
 			A->Num[i - 1] = 0;
-		A->Length = size;
-	}
+		A->Top = size; // A->Length = 기존 값 유지
+	}	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -235,12 +237,12 @@ void GF2N_Realloc_Mem(GF2N *A, const UNWORD size)
  * - 크기가 같아도 값 0 으로 변경
  * @param[out] GF2N *A
  * @param[in] UNWORD size (const)
- * @date 2017. 04. 05. v1.00 \n
+ * @date 2017. 04. 20. \n
  */
 void GF2N_Zero_Realloc_Mem(GF2N *A, const UNWORD size)
 {	
 	// 입력 받은 크기 만큼 메모리 재할당
-	if(A->Length != size)
+	if(A->Top != size)
 		GF2N_Realloc_Mem(A, size);
 	// 재할당된 메모리 0 으로 초기화
 	GF2N_Zeroize(A);	
@@ -248,18 +250,48 @@ void GF2N_Zero_Realloc_Mem(GF2N *A, const UNWORD size)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
- * @brief Optimize Input of GF2N *A
+ * @brief Top Check of GF2N *A
  * @details
- * - GF2N *A 값의 크기 최적화 입력 (Memory, Length) \n
- * - 예상 결과 크기와 메모리 크기가 다르면 메모리 재할당 \n
+ * - GF2N *A 입력 값의 배열 크기 최적화 \n
+ * - A->Top != A->Length 인 경우 메모리 재할당 (A->Top == A->Length) \n
+ * - BIGNUM *A 가 빈 배열이면 메모리 할당 \n
  * @param[in, out] GF2N *A
- * @param[in] UNWORD size (const)
- * @date 2017. 04. 14. v1.00 \n
+ * @date 2017. 04. 20. \n
+ * @todo 경우 더 생각해보기
  */
-void GF2N_Optimize_In(GF2N *A, const UNWORD size)
+void GF2N_Top_Check(GF2N *A)
 {
-	if(A->Length != size)
-		GF2N_Zero_Realloc_Mem(A, size);
+	// TODO 
+
+	// BIGNUM *A 의 메모리가 할당되지 않은 경우
+	if(A->Top == 0)
+		GF2N_Init_Zero(A);
+	
+	// 실제 할당된 배열 크기와 값이 들어있는 배열 크기 다르면 재할당
+	if((A->Top != A->Length) && (A->Length != 0))
+		GF2N_Realloc_Mem(A, A->Length);	
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * @brief Result size check of GF2N *A
+ * @details
+ * - 연산의 결과 값의 배열 크기 체크 \n
+ * - A->Top 크기가 입력된 연산의 출력 크기 보다 작으면 메모리 재할당 \n
+ * - GF2N *A 가 빈 배열이면 메모리 할당
+ * @param[in, out] GF2N *A
+ * @date 2017. 04. 20. \n
+ * @todo 경우 더 생각해보기
+ */
+void GF2N_Result_Size(GF2N *A, const UNWORD size)
+{	
+	// TODO 
+
+	// GF2N *A 의 메모리가 할당되지 않은 경우
+	if(A->Top == 0)
+		GF2N_Init_Zero(A);
+	else if(A->Top < size) // (A->Top >= size) 인 경우 재할당 X
+		GF2N_Realloc_Mem(A, size); // 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -267,27 +299,29 @@ void GF2N_Optimize_In(GF2N *A, const UNWORD size)
  * @brief Optimize Output of GF2N *A
  * @details
  * - GF2N *A 값의 크기 최적화 출력 (Memory, Length)
+ * - GF2N *A 가 0 인 경우 *A 의 Sign = ZERO
  * - 최상위 WORD 부터 값이 0 인지 체크
  * @param[in, out] GF2N *A
- * @date 2017. 04. 12. v1.00 \n
+ * @date 2017. 04. 20. \n
  */
-void GF2N_Optimize_Out(GF2N *A)
+void GF2N_Optimize(GF2N *A)
 {
-	UNWORD tmp_len = A->Length;
-	// Length가 1 이상이고, 최상위 WORD 값이 0 인 경우 재할당
-	while(A->Num[tmp_len - 1] == 0)
-	{
-		if(tmp_len > 1) 
-			tmp_len--;
-		else // 실제 A->Length <= 1 일 때
-			break;
-	}
-	if(A->Length != tmp_len)
-		GF2N_Realloc_Mem(A, tmp_len);
+	// TODO
+	
+	// 빈 배열 체크
+	while(A->Num[A->Length - 1] == 0)
+		A->Length--;
 
-	// 길이 0 존재 X
-	if(A->Length == 0)
-		A->Length = 1;
+	// 실제 할당된 배열 크기와 값이 들어있는 배열 크기 다르면 재할당
+	if((A->Top != A->Length) && (A->Top != 0))
+		GF2N_Realloc_Mem(A, A->Length); // A->Top = A->Length 세팅
+	
+	//실제 *A 에 저장된 값이 0 인 경우  
+	if((A->Length == 1) && (A->Num[0] == 0))
+	{	
+		A->Length = 0;
+		A->Sign = ZERO; 
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -296,14 +330,17 @@ void GF2N_Optimize_Out(GF2N *A)
  * @details
  * - GF2N Num WORD 동적할당 해제 \n
  * - 0 초기화 없이 단순 메모리 할당 해제 \n
- * - GF2N 이 Free 된 상태 => Length = 0, Flag = DEFAULT \n
+ * - GF2N 이 Free 된 상태 => Num = NULL, Top = 0, Length = 0, Flag = DEFAULT \n
  * @param[in,out] GF2N *A 
- * @date 2017. 04. 07. v1.00 \n
+ * @date 2017. 04. 20. \n
  */
 void GF2N_Free(GF2N *A)
 {
 	free(A->Num);
-	A->Length = ZERO;
+	A->Num = NULL;
+	A->Top = 0;
+	A->Length = 0;
+	A->Sign = ZERO;
 	A->Flag = DEFAULT;
 }
 
@@ -313,20 +350,18 @@ void GF2N_Free(GF2N *A)
  * @details
  * - GF2N Num WORD 동적할당 해제 \n
  * - 값을 0 으로 초기화 한 후 메모리 할당 해제 \n
- * - GF2N 이 Free 된 상태 => Length = 0, Flag = DEFAULT \n
+ * - GF2N 이 Free 된 상태 => NUM = NULL, Top = 0, Length = 0, Flag = DEFAULT \n
  * @param[in,out] GF2N *A 
- * @date 2017. 04. 07. v1.00 \n
+ * @date 2017. 04. 20. \n
  */
 void GF2N_Zero_Free(GF2N *A)
 {
-	while(A->Length > 0)
+	while(A->Top > 0)
 	{
-		A->Num[(A->Length - 1)] = 0;
-		A->Length--;
+		A->Num[(A->Top - 1)] = 0;
+		A->Top--;
 	}	
 	free(A->Num);
-	A->Length = ZERO;
-	A->Flag = DEFAULT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -335,53 +370,60 @@ void GF2N_Zero_Free(GF2N *A)
  * @details
  * - GF2N *A 오른쪽으로 n 비트 시프트 \n
  * - 외부에서 결과 값 저장 할 GF2N *R 생성해서 입력 \n
+ * - GF2N_RShift_Bit(R, R, s_bit) 가능
  * @param[out] GF2N *R 
- * @param[in] GF2N *A (const)
+ * @param[in] GF2N *A 
  * @param[in] s_bit (const) // shift bit
  * @date 2017. 04. 13. v1.00 \n
  */
-void GF2N_RShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit)
+void GF2N_RShift_Bit(GF2N *R, GF2N *A, const UNWORD s_bit)
 {
 	UNWORD i;
 	UNWORD tmp_word;
 	UNWORD tmp_bit = s_bit;
-		
+
+	GF2N_Top_Check(A);
+	// R = A 인 경우 재할당 X , Ex) GF2N_RShift_Bit(R, R, shift);
+	GF2N_Result_Size(R, A->Top);
+	
+	// Right Shift 값이 현재 할당된 배열 보다 크면 결과는 0
 	if(s_bit > (A->Length * BIT_LEN))
 		GF2N_Zero(R);
 	else
 	{
-		// R 길이 조정
-		GF2N_Optimize_In(R, A->Length);
-
-		if(tmp_bit >= BIT_LEN) // s_bit >= BIT_LEN (워드 이동)
+		if(s_bit >= BIT_LEN) // s_bit >= BIT_LEN (워드 이동)
 		{
-			tmp_word = UW_Div(tmp_bit, BIT_LEN);	// Move word
-			tmp_bit = UW_Mod(tmp_bit, BIT_LEN);		// New shift bits
+			tmp_word = UW_Div(s_bit, BIT_LEN);		// Move word
+			tmp_bit = UW_Mod(s_bit, BIT_LEN);		// New shift bits
 			// WORD 이동
 			for(i = 0 ; i < A->Length - tmp_word ; i++)
 				R->Num[i] = A->Num[i + tmp_word];
 			// 이동된 나머지 WORD = 0 채우기
 			for( ; i < A->Length ; i++)
 				R->Num[i] = 0;
+			// 연산 후 길이
+			R->Length = A->Length - tmp_word;
 		}
 		else
 		{
 			for(i = 0 ; i < A->Length ; i++)
 				R->Num[i] = A->Num[i];
-		}
-		
-		if(tmp_bit != 0) // tmp_bit == 0 인 경우 WORD 이동만 필요
+			// 연산 후 길이
+			R->Length = A->Length;
+		}		
+		if(tmp_bit != 0) // tmp_bit == 0 인 경우 WORD 이동만
 		{
 			// s_bit < BIT_LEN 인 상태 
 			for(i = 0 ; i < (R->Length - 1) ; i++) 
 				R->Num[i] = (R->Num[i + 1] << (BIT_LEN - tmp_bit)) ^ (R->Num[i] >> tmp_bit);
-			// 최상위 WORD 처리 (i = A->Num[A->Length - 1] 일 때)
+			// 최상위 WORD 처리 (i = A->Num[A->Top - 1] 일 때)
 			R->Num[i] >>= tmp_bit;
-		}		
-		
-		if(A->Flag == OPTIMIZE)
-			GF2N_Optimize_Out(R);	
+		}
+		R->Top = A->Top;
+		R->Sign = A->Sign;
+		R->Flag = A->Flag;
 	}
+	GF2N_Optimize(R);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -391,13 +433,13 @@ void GF2N_RShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit)
  * - GF2N *A 왼쪽으로 n 비트 시프트 \n
  * - 외부에서 결과 값 저장 할 GF2N *R 생성해서 입력 \n
  * @param[out] GF2N *R 
- * @param[in] GF2N *A (const)
+ * @param[in] GF2N *A 
  * @param[in] s_bit (const) // shift bit
- * @date 2017. 04. 13. v1.00 \n
+ * @date 2017. 04. 20. \n
  */
-void GF2N_LShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit)
+void GF2N_LShift_Bit(GF2N *R, GF2N *A, const UNWORD s_bit)
 {
-	SNINT i;
+	SNWORD i;
 	UNWORD tmp_word = UW_Div(s_bit, BIT_LEN);	// 실제 추가되는 WORD;
 	UNWORD tmp_bit = UW_Mod(s_bit, BIT_LEN);	// 실제 Shift bit;
 	UNWORD word_len = A->Length;
@@ -414,21 +456,20 @@ void GF2N_LShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit)
 	
 	if(zero_cnt < tmp_bit) // 최상위 WORD 1개 추가
 	{			
-		GF2N_Zero_Realloc_Mem(R, (A->Length + tmp_word + 1));
-	
-		for(i = 0 ; i < tmp_word ; i++)
-			R->Num[i] = 0;
-		for( ; i < R->Length - 1 ; i ++)
-			R->Num[i] = A->Num[i - tmp_word];
+		GF2N_Result_Size(R, (A->Length + tmp_word + 1));		
+		R->Num[R->Length - 1] = 0;					  // 최상위 배열 빈 상태 유지 (Shift carry 고려)
+		for(i = R->Length - 1 ; i > tmp_word ; i--)
+			R->Num[i - 1] = A->Num[i - 1 - tmp_word]; // Range : [(R->Length - 2), tmp_word]
+		for( ; i > 0 ; i--)							  
+			R->Num[i - 1] = 0;						  // Range : [(tmp_word - 1), 0]
 	}
 	else // zero_cnt >= tmp_bit(조정)
 	{
-		GF2N_Zero_Realloc_Mem(R, (A->Length + tmp_word));
-	
-		for(i = 0 ; i < tmp_word ; i++)
-			R->Num[i] = 0;
-		for( ; i < R->Length ; i ++)
-			R->Num[i] = A->Num[i - tmp_word];
+		GF2N_Result_Size(R, (A->Length + tmp_word));		
+		for(i = R->Length ; i > tmp_word ; i--)
+			R->Num[i - 1] = A->Num[i - 1 - tmp_word]; // Range : [(R->Length - 2), tmp_word]
+		for( ; i > 0 ; i--)							  
+			R->Num[i - 1] = 0;						  // Range : [(tmp_word - 1), 0]
 	}
 
 	if(tmp_bit != 0) // tmp_bit == 0 인 경우 WORD 이동만 필요
@@ -440,9 +481,38 @@ void GF2N_LShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit)
 		R->Num[i] <<= tmp_bit;
 	}
 		
-	if(A->Flag == OPTIMIZE)
-		GF2N_Optimize_Out(R);
+	// 연산 후 길이
+	R->Length = R->Top;	
+	// R 설정 동일하게
+	R->Sign = A->Sign;
+	R->Flag = A->Flag;
+	GF2N_Optimize(R);
 
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * @brief GF2N *A is Zero ?
+ * @details 
+ * - GF2N *A 가 Zero 인지 아닌지 판단 \n
+ * @param[in] GF2N *A (const)
+ * @return SNWORD TRUE/FALSE
+ * @date 2017. 04. 17. \n
+ */
+SNWORD GF2N_IsZero(const GF2N *A)
+{	
+	UNWORD tmp = A->Length;	
+	while(tmp != 0)
+	{
+		if(A->Num[tmp - 1] == 0)
+			tmp--;
+		else
+			break;
+	}
+	if(tmp == 0)
+		return TRUE;
+	else
+		return FALSE;	
 }
 
 
@@ -463,10 +533,6 @@ void GF2N_LShift_Bit(GF2N *R, const GF2N *A, const UNWORD s_bit)
 SNWORD GF2N_Cmp(GF2N *A, GF2N *B)
 {
 	SNWORD i;
-
-	// 빈 배열 체크 
-	GF2N_Optimize_Out(A);
-	GF2N_Optimize_Out(B);
 	
 	// 1) A 와 B 의 WORD Length(개수) 같을 때
 	if(A->Length == B->Length)
@@ -660,64 +726,7 @@ void GF2N_FPrint_poly(FILE *fp, const GF2N *A)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
 
 /**
  * @brief Add GF2N *A and GF2N *B
@@ -764,95 +773,223 @@ void GF2N_Add(GF2N *R, GF2N *A, GF2N *B)
 }
 
 /**
- * @brief GF2N *A Modulus GF2N *IRR (Reduction)
- * @details
- * - GF2N *A 를 *IRR 로 나눈 나머지
- * - *R 의 최대 크기 = IRR 길이
- * - Lecture Note 참고
- * @param[out] GF2N *R
- * @param[in] GF2N *A (const)
- * @param[in] GF2N *IRR (const)
- * @date 2017. 04. 06. v1.00 \n
- */
-void GF2N_Redc(GF2N *R, const GF2N *A, const GF2N *IRR)
-{
-	UNWORD deg_m, deg_r;
-	UNWORD tmp_sft;
-	GF2N t;
-
-	GF2N_Init(&t, A->Length, DEFAULT);
-	GF2N_Copy(R, A);
-	// 기약 다항식 최고차항 m
-	deg_m = GF2N_Deg(IRR);
-
-	deg_r = GF2N_Deg(R);
-	while(deg_r >= deg_m)
-	{	
-		tmp_sft = (deg_r - deg_m);
-		GF2N_LShift_Bit(&t, IRR, tmp_sft);
-		GF2N_Add(R, R, &t);
-		deg_r = GF2N_Deg(R);
-		
-	}
-}
-
-
-/**
  * @brief Divide GF2N *A by GF2N *IRR (Division)
  * @details
  * - GF2N *A 를 *IRR 로 나눈 몫과 나머지
  * - *R 의 최대 크기 = IRR 길이
  * - Lecture Note 참고
  * @param[out] GF2N *R
- * @param[out] GF2N *R
- * @param[in] GF2N *A (const)
+ * @param[in] GF2N *A 
  * @param[in] GF2N *IRR (const)
  * @date 2017. 04. 06. v1.00 \n
 
  */
-void GF2N_Div(GF2N *Q, GF2N *R, const GF2N *A, const GF2N *IRR)
+void GF2N_Div(GF2N *Q, GF2N *R, GF2N *A, GF2N *IRR)
 {
 	UNWORD deg_m, deg_r;
-	UNWORD tmp_sft;
-	GF2N t, q;
-	/*
-	// 기약 다항식 최고차항 m
-	deg_m = GF2N_Deg(IRR);
-
-	GF2N_Init(&t, A->Length, DEFAULT);
-	GF2N_Init(&q, (A->Length - IRR->Length), DEFAULT);
+	GF2N ft, deg_tmp;
+	
+	GF2N_Result_Size(Q, A->Top);
+	GF2N_Result_Size(R, A->Top);
+	
+	GF2N_Init_One(&deg_tmp);		// 임시 deg 저장
+	GF2N_Init(&ft, IRR->Length, DEFAULT);	// 임시 GF2N
 	GF2N_Copy(R, A);
 	
-
-	deg_r = GF2N_Deg(R);
+	deg_m = GF2N_Deg(IRR);	// 기약 다항식(IRR) 최고차항 m (고정)
+	deg_r = GF2N_Deg(R);	// 초기 Deg(R(x))
 	while(deg_r >= deg_m)
-	{	
-		tmp_sft = (deg_r - deg_m);
-		GF2N_LShift_Bit(&t, IRR, tmp_sft);
-		GF2N_Add(R, R, &t);
-		deg_r = GF2N_Deg(R);
+	{			
+		deg_tmp.Num[0] = (deg_r - deg_m);
+
+		GF2N_Mul(&ft, IRR, &deg_tmp, IRR);
+		GF2N_Add(R, R, &ft);
+		GF2N_Add(Q, Q, &deg_tmp);
 		
+		deg_r = GF2N_Deg(R);		
 	}
-	*/
+
+	GF2N_Zero_Free(&ft);
+	GF2N_Zero_Free(&deg_tmp);
+	
+	GF2N_Optimize(R);
+	GF2N_Optimize(Q);
+}
+/**
+ * @brief GF2N *A Modulus GF2N *IRR (Reduction)
+ * @details
+ * - GF2N *A 를 *IRR 로 나눈 나머지
+ * - *R 의 최대 크기 = IRR 길이
+ * @param[out] GF2N *R
+ * @param[in] GF2N *A (const)
+ * @param[in] GF2N *IRR (const)
+ * @date 2017. 04. 16. \n
+ */
+void GF2N_Redc(GF2N *Out, GF2N *In, GF2N *Irr)
+{
+	SNWORD i, j;
+	UNWORD m1, m2, m, n, CurPos, msb=0, msbMASK=1, msbIn=0, msbIrr=0;
+	GF2N tmp, r[32];
+
+	if(In->Length == Irr->Length)
+	{
+		UW_BitSearch(&msbIn,  In->Num[In->Length-1]);
+		UW_BitSearch(&msbIrr, Irr->Num[Irr->Length-1]);
+
+		if(msbIn < msbIrr)
+		{
+			GF2N_Copy(Out, In);
+		}
+	}
+
+	// 입력값 복사
+	GF2N_Init(&tmp, In->Length, DEFAULT);
+	GF2N_Copy(&tmp, In);
+
+	// 중간값 배열 할당
+	for(i=0; i<32; i++)
+		GF2N_Init(&r[i], Irr->Length+1, DEFAULT);
+
+	// 기약다항식 복사
+	GF2N_Copy(&r[0], Irr);
+
+	// 기약다항식의 최상위 비트 위치 계산
+	UW_BitSearch(&msb, Irr->Num[Irr->Length-1]);
+	m2 = msb + ((Irr->Length-1) * 32);	
+	
+	// 최고차항을 제거
+	msbMASK = msbMASK << msb;
+	r[0].Num[Irr->Length-1] ^= msbMASK;
+
+	while(!r[0].Num[r[0].Length-1])
+		r[0].Length--;
+	
+	// 32개의 중간값 생성
+	for(i=1; i<32; i++)
+		GF2N_LShift_Bit(&r[i], &r[i-1], 1);
+
+	// 입력의 최상위 비트 위치 계산
+	msb = 0;
+	UW_BitSearch(&msb, In->Num[In->Length-1]);
+	m1 = msb + ((In->Length-1) * 32);
+		
+	// 최초 소거 위치 계산
+	CurPos = (UNWORD)1 << msb;
+
+	// 계산
+	for(i=(SNWORD)m1; i>=(SNWORD)m2; i--)
+	{
+		if(tmp.Num[i>>5] & CurPos)
+		{
+			tmp.Num[i>>5] ^= CurPos;
+
+			n = (i-m2) / 32;
+			m = (i-m2) & 31;
+
+			for(j=0; j<r[m].Length; j++)
+				tmp.Num[n+j] ^= r[m].Num[j];
+		}
+
+		CurPos = CurPos >> 1;
+
+		if(!CurPos)
+			CurPos = 0x80000000;
+	}
+
+	GF2N_Copy(Out, &tmp);
+
+	while(!Out->Num[Out->Length-1])
+		Out->Length--;
+
+	if(Out->Length == -1)
+		Out->Length = 0;
+
+	free(tmp.Num);
+
+	for(i=0; i<32; i++)
+		free(r[i].Num);
 }
 
 /**
- * @brief Multiply GF2N *A and GF2N *B
+ * @brief Multiply GF2N *A and GF2N *B (Shift-and-add)
  * @details
  * - GF2N *A 와 GF2N *B 를 곱한 결과 GF2N *R 출력
- * - 기본 곱셈 방법 적용
- * - 부호 구분 가능
+ * - Right-to-left : Shift-and-add \n
+ * - Lecture Note 참고
  * - WORD 곱셈 -> R = A * B
  * @param[out] BIGNUM *R
  * @param[in] BIGNUM *A (const)
  * @param[in] BIGNUM *B (const)
  * @date 2017. 04. 07. v1.00 \n
  */
-void GF2N_Mul(GF2N *R, const GF2N *A, const GF2N *B, const GF2N *IRR)
+void GF2N_Mul(GF2N *Out, GF2N *In1, GF2N *In2, GF2N *Irr)
 {
-	
+	GF2N T1, T2, tmpOut;
+	UNWORD Mask;
+	int i=0, j=0;
 
+	if((!In1->Length) && (!In1->Num[0]))
+	{
+		for(i=0; i<Out->Length; i++)
+			Out->Num[i] = 0;
+		Out->Length = 0;
+	}
+	else if((!In2->Length) && (!In2->Num[0]))
+	{
+		for(i=0; i<Out->Length; i++)
+			Out->Num[i] = 0;
+		Out->Length = 0;
+	}
+	else if((In1->Length == 1) && (In1->Num[0] == 1))
+	{
+		GF2N_Copy(Out, In2);
+	}
+	else if((In2->Length == 1) && (In2->Num[0] == 1))
+	{
+		GF2N_Copy(Out, In1);
+	}
+	else
+	{
+		GF2N_Init(&T1, In1->Length+In2->Length, DEFAULT);
+		GF2N_Init(&T2, In1->Length+In2->Length, DEFAULT);
+		GF2N_Init(&tmpOut, In1->Length+In2->Length, DEFAULT);
+
+		GF2N_Copy(&T1, In2);
+
+		Mask = In1->Num[0];
+
+		if(Mask & 1)
+			GF2N_Copy(&tmpOut, In2);
+
+		i = 0;
+		while(i < In1->Length)
+		{
+			Mask = (i)?		(In1->Num[i]) : (In1->Num[i] >> 1);
+			j    = (i)?		(0)           : (1);
+
+			while((Mask) || (i < In1->Length-1))
+			{
+				GF2N_LShift_Bit(&T2, &T1, 1);
+				GF2N_Redc(&T1, &T2, Irr);
+				
+				if(Mask & 1)
+					GF2N_Add(&tmpOut, &tmpOut, &T1);
+
+				Mask = (Mask >> 1);
+
+				if(++j == 32)
+					break;
+			}
+
+			i++;
+		}
+
+		GF2N_Redc(Out, &tmpOut, Irr);
+	}
+	
+	GF2N_Optimize(Out);
 }
+
 
 /**
  * @brief Square GF2N *A 
@@ -863,7 +1000,9 @@ void GF2N_Mul(GF2N *R, const GF2N *A, const GF2N *B, const GF2N *IRR)
  * @param[in] BIGNUM *A (const)
  * @date 2017. 04. 06. v1.00 \n
  */
+ /*
 void GF2N_Sqr(GF2N *R, const GF2N *A, const GF2N *IRR)
 {
 	
 }
+*/
