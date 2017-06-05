@@ -11,8 +11,7 @@ typedef struct _GF2N
 	UNWORD	Length;		// Value Size (0 ~ )
 	UNWORD	Sign;		// Sign (PLUS, ZERO) 
 	SNWORD	Flag;		// Option (DEFAULT, OPTIMIZE)
-
-}GF2N;
+} GF2N;
 
 //////////////////////////
 

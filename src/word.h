@@ -1,5 +1,5 @@
-#ifndef _WD_OPERATION_H_
-#define _WD_OPERATION_H_
+#ifndef _WORD_H_
+#define _WORD_H_
 
 #include "config.h"
 

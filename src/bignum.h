@@ -11,7 +11,7 @@ typedef struct _BIGNUM
 	UNWORD	Length;		// Value Size (0 ~ )
 	SNWORD	Sign; 		// Sign (PLUS, ZERO, MINUS)
 	SNWORD	Flag;		// Option (DEFAULT, OPTIMIZE)
-}BIGNUM;
+} BIGNUM;
 
 // Define Function 
 void BN_Init(BIGNUM *A, const UNWORD len, const SNWORD sign, const SNWORD flag);	// done
